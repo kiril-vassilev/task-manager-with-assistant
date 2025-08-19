@@ -1,0 +1,35 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Task Manager";
+}
+<h1>Task Manager</h1>
+
+
+<form method="post">
+    @Html.AntiForgeryToken()
+    <input name="Title" required />
+    <input name="DueDate" type="datetime-local" required />
+    <input name="Description" />
+    <button type="submit">Add Task</button>
+</form>
+
+<h2>Tasks</h2>
+<ul>
+@foreach (var t in Model.Tasks)
+{
+    <li>
+        <strong>@t.Title</strong> - @t.DueDate.ToShortDateString() - @(t.IsCompleted ? "✅" : "❌")
+        @if(!t.IsCompleted)
+        {
+            <form method="post" style="display:inline;">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="Id" value="@t.Id" />
+                <button type="submit">Complete</button>
+            </form>
+        }
+    </li>
+}
+</ul>
+
+<p>Open <a href="/swagger" target="_blank">Swagger</a> to explore the API.</p>
