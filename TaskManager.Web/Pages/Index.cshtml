@@ -3,33 +3,108 @@
 @{
     ViewData["Title"] = "Task Manager";
 }
-<h1>Task Manager</h1>
+<link rel="stylesheet" href="~/css/index.css" />
 
+<div class="main-container">
+    <h1>Task Manager</h1>
 
-<form method="post">
-    @Html.AntiForgeryToken()
-    <input name="Title" required />
-    <input name="DueDate" type="datetime-local" required />
-    <input name="Description" />
-    <button type="submit">Add Task</button>
-</form>
+    <form method="post">
+        @Html.AntiForgeryToken()
+        <input name="Title" required placeholder="Task title" />
+        <input name="DueDate" type="datetime-local" required />
+        <input name="Description" placeholder="Description" />
+        <button type="submit">Add Task</button>
+    </form>
 
-<h2>Tasks</h2>
-<ul>
-@foreach (var t in Model.Tasks)
-{
-    <li>
-        <strong>@t.Title</strong> - @t.DueDate.ToShortDateString() - @(t.IsCompleted ? "✅" : "❌")
-        @if(!t.IsCompleted)
-        {
-            <form method="post" style="display:inline;">
-                @Html.AntiForgeryToken()
-                <input type="hidden" name="Id" value="@t.Id" />
-                <button type="submit">Complete</button>
-            </form>
+    <h2>Tasks</h2>
+    <ul>
+    @foreach (var t in Model.Tasks)
+    {
+        <li>
+            <span>
+                <strong>@t.Title</strong> - @t.DueDate.ToShortDateString() - @(t.IsCompleted ? "✅" : "❌")
+            </span>
+            @if(!t.IsCompleted)
+            {
+                <form method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="Id" value="@t.Id" />
+                    <button type="submit">Complete</button>
+                </form>
+            }
+        </li>
+    }
+    </ul>
+
+    <p style="margin-top:24px;">Open <a href="/swagger" target="_blank">Swagger</a> to explore the API.</p>
+</div>
+
+<!-- Chatbot Pop-up -->
+<button id="chatbot-toggle-btn" title="Chat with us">💬</button>
+<div id="chatbot-popup">
+    <div id="chatbot-header">
+        <span>Chatbot</span>
+        <span style="cursor:pointer;" id="chatbot-close-btn">&times;</span>
+    </div>
+    <div id="chatbot-messages">
+        <div style="color:#888;">Hello! How can I help you?</div>
+    </div>
+    <form id="chatbot-input-area" autocomplete="off">
+        <input id="chatbot-input" type="text" placeholder="Type your message..." />
+        <button id="chatbot-send" type="submit">Send</button>
+    </form>
+</div>
+<script>
+(function(){
+    const popup = document.getElementById('chatbot-popup');
+    const toggleBtn = document.getElementById('chatbot-toggle-btn');
+    const closeBtn = document.getElementById('chatbot-close-btn');
+    const messages = document.getElementById('chatbot-messages');
+    const input = document.getElementById('chatbot-input');
+    const form = document.getElementById('chatbot-input-area');
+
+    toggleBtn.onclick = () => {
+        popup.style.display = 'flex';
+        toggleBtn.style.display = 'none';
+        input.focus();
+    };
+    closeBtn.onclick = () => {
+        popup.style.display = 'none';
+        toggleBtn.style.display = 'block';
+    };
+
+    form.onsubmit = async function(e) {
+        e.preventDefault();
+        const userMsg = input.value.trim();
+        if (!userMsg) return;
+        appendMsg('You', userMsg);
+        input.value = '';
+        // Send user message to server and get bot response
+        try {
+            const resp = await fetch('@Url.Page("Index", "UserAsks")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                },
+                body: JSON.stringify({ ChatbotQuestion: userMsg })
+            });
+            if (resp.ok) {
+                const data = await resp.json();
+                appendMsg('Bot', data.answer || "No answer.");
+            } else {
+                appendMsg('Bot', "Sorry, there was an error.");
+            }
+        } catch (err) {
+            appendMsg('Bot', "Sorry, there was a network error.");
         }
-    </li>
-}
-</ul>
+    };
 
-<p>Open <a href="/swagger" target="_blank">Swagger</a> to explore the API.</p>
+    function appendMsg(sender, text) {
+        const div = document.createElement('div');
+        div.innerHTML = `<strong>${sender}:</strong> ${text}`;
+        messages.appendChild(div);
+        messages.scrollTop = messages.scrollHeight;
+    }
+})();
+</script>

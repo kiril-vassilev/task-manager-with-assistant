@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Net.Http.Json;
 using TaskManager.Domain;
+using System.Text.Json;
 
 public class IndexModel : PageModel
 {
@@ -16,6 +17,12 @@ public class IndexModel : PageModel
     public DateTime DueDate { get; set; }
     [BindProperty]
     public string? Description { get; set; }
+
+    // Property for chatbot question
+    [BindProperty]
+    public string? ChatbotQuestion { get; set; }
+    // Property for chatbot answer
+    public string? ChatbotAnswer { get; set; }
 
     public IndexModel(IHttpClientFactory factory)
     {
@@ -63,5 +70,20 @@ public class IndexModel : PageModel
         }
     }
 
+    // AJAX handler for chatbot question
+    public async Task<IActionResult> OnPostUserAsksAsync()
+    {
+        // Read JSON body
+        using var reader = new StreamReader(Request.Body);
+        var body = await reader.ReadToEndAsync();
+        var json = JsonDocument.Parse(body);
+        ChatbotQuestion = json.RootElement.GetProperty("ChatbotQuestion").GetString();
+
+        // Log and answer
+        Console.WriteLine($"User asked: {ChatbotQuestion}");
+        ChatbotAnswer = $"You said: {ChatbotQuestion}. (Bot demo answer)";
+
+        return new JsonResult(new { answer = ChatbotAnswer });
+    }
 }
 
