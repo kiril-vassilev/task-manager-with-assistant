@@ -18,11 +18,12 @@ public class IndexModel : PageModel
     [BindProperty]
     public string? Description { get; set; }
 
-    // Property for chatbot question
-    [BindProperty]
+
     public string? ChatbotQuestion { get; set; }
     // Property for chatbot answer
     public string? ChatbotAnswer { get; set; }
+
+
 
     public IndexModel(IHttpClientFactory factory)
     {
@@ -77,6 +78,7 @@ public class IndexModel : PageModel
         using var reader = new StreamReader(Request.Body);
         var body = await reader.ReadToEndAsync();
         var json = JsonDocument.Parse(body);
+        
         ChatbotQuestion = json.RootElement.GetProperty("ChatbotQuestion").GetString();
 
         // Log and answer

@@ -53,3 +53,4 @@ wwwroot/lib/
 *.db
 *.db-shm
 *.db-wal
+TaskManager.Web/tasks.db
