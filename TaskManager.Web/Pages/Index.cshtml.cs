@@ -78,13 +78,27 @@ public class IndexModel : PageModel
         using var reader = new StreamReader(Request.Body);
         var body = await reader.ReadToEndAsync();
         var json = JsonDocument.Parse(body);
-        
+
         ChatbotQuestion = json.RootElement.GetProperty("ChatbotQuestion").GetString();
 
-        // Log and answer
+        // Log
         Console.WriteLine($"User asked: {ChatbotQuestion}");
-        ChatbotAnswer = $"You said: {ChatbotQuestion}. (Bot demo answer)";
 
+        // Call AgentController API
+        string? answer = null;
+        try
+        {
+            var payload = new { question = ChatbotQuestion };
+            var response = await _http.PostAsJsonAsync("/api/agent/ask", payload);
+            response.EnsureSuccessStatusCode();
+            answer = await response.Content.ReadAsStringAsync();
+        }
+        catch (Exception ex)
+        {
+            answer = $"Error: {ex.Message}";
+        }
+
+        ChatbotAnswer = answer;
         return new JsonResult(new { answer = ChatbotAnswer });
     }
 }

@@ -18,7 +18,7 @@ public class TasksController : ControllerBase
     public ActionResult<TaskItem> Create([FromBody] TaskItem task)
     {
         Console.WriteLine($"Creating task: {task.Title}");
-        
+
         var created = _service.Create(task);
         return CreatedAtAction(nameof(GetAll), new { id = created.Id }, created);
     }
@@ -29,4 +29,12 @@ public class TasksController : ControllerBase
         _service.MarkComplete(id);
         return NoContent();
     }
+    
+    [HttpGet("find")]
+    public ActionResult<TaskItem> FindByName([FromQuery] string name)
+    {
+        var task = _service.FindByName(name);
+        if (task == null) return NotFound();
+        return Ok(task);
+    }    
 }

@@ -31,4 +31,9 @@ public class TaskRepository : ITaskRepository
         _context.Tasks.Remove(entity);
         _context.SaveChanges();
     }
+
+    public TaskItem? FindByName(string name)
+    {
+        return _context.Tasks.FirstOrDefault(t => t.Title == name);
+    }
 }

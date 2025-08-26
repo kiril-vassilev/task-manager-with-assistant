@@ -17,6 +17,13 @@ builder.Services.AddDbContext<TaskDbContext>(opt =>
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 
+// Register AgentTaskService as singleton
+builder.Services.AddSingleton<AgentTaskService>();
+
+// Register the hosted service for async initialization
+builder.Services.AddHostedService<AgentTaskServiceInitializer>();
+
+
 // Register a named HttpClient for the Razor Pages UI
 builder.Services.AddHttpClient("TaskApi", client =>
 {

@@ -25,4 +25,9 @@ public class TaskService : ITaskService
         task.IsCompleted = true;
         _repo.Update(task);
     }
+
+        public TaskItem? FindByName(string name)
+    {
+        return _repo.FindByName(name);
+    }
 }
