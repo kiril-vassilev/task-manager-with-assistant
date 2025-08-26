@@ -1,6 +1,7 @@
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Agents;
 using Microsoft.SemanticKernel.ChatCompletion;
+using TaskManager.Domain;
 
 namespace TaskManager.BLL;
 
@@ -26,12 +27,26 @@ public class AgentTaskService
         if (_agent == null)
             throw new InvalidOperationException("Agent not initialized.");
 
+        if (_kernel == null)
+            throw new InvalidOperationException("Kernel not initialized.");
+
+
         ChatMessageContent message = new(AuthorRole.User, question);
 
         await foreach (var response in _agent.InvokeAsync(message))
         {
-            return FormatResponse(response);
+            var formattedResponse = FormatResponse(response);
+            Task<FunctionResultContent>[] functionResults = await ProcessFunctionCalls(response, _kernel).ToArrayAsync();
+
+            foreach (ChatMessageContent functionResult in functionResults.Select(result => result.Result.ToChatMessage()))
+            {
+                formattedResponse += FormatResponse(functionResult);
+            }
+
+            return formattedResponse;
         }
+
+
         throw new InvalidOperationException("No response from agent.");
     }
 
@@ -49,8 +64,25 @@ public class AgentTaskService
             {
                 ret += $"  [{item.GetType().Name}] {functionCall.Id}\n";
             }
+            else if (item is FunctionResultContent functionResult)
+            {
+                //ret += $"  [{item.GetType().Name}] {functionResult.CallId} - {functionResult.Result?.AsJson() ?? "*"}";
+                if (functionResult.Result is TaskItem task)
+                    ret += $"Task: Id={task.Id}, Title={task.Title}, DueDate={task.DueDate}, IsCompleted={task.IsCompleted}\n";
+                else
+                    ret += $"{functionResult.Result?.AsJson() ?? "*"}\n";
+            }
         }
 
         return ret;
     }
+
+    private async IAsyncEnumerable<Task<FunctionResultContent>> ProcessFunctionCalls(ChatMessageContent response, Kernel kernel)
+    {
+        foreach (FunctionCallContent functionCall in response.Items.OfType<FunctionCallContent>())
+        {
+            yield return functionCall.InvokeAsync(kernel);
+        }
+    }
+
 }

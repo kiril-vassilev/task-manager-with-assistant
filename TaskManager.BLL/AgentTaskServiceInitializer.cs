@@ -23,7 +23,7 @@ public class AgentTaskServiceInitializer : IHostedService
         using (var scope = _serviceProvider.CreateAsyncScope())
         {
             var taskService = scope.ServiceProvider.GetRequiredService<ITaskService>();
-
+            
             var kernel = CreateKernel();
             var plugin = KernelPluginFactory.CreateFromObject(new TaskServicePlugin(taskService));
 
@@ -35,7 +35,7 @@ public class AgentTaskServiceInitializer : IHostedService
                     Instructions = "You are a helpful assistant that manages tasks. Use the provided functions to get information about tasks or create new ones.",
                     Name = "TaskManagerAgent",
                     Kernel = kernel,
-                    Arguments = new KernelArguments(new PromptExecutionSettings() { FunctionChoiceBehavior = FunctionChoiceBehavior.Auto() }),
+                    Arguments = new KernelArguments(new PromptExecutionSettings() { FunctionChoiceBehavior = FunctionChoiceBehavior.Auto(autoInvoke: false) }),
                 };
 
             _agentTaskService.Initialize(kernel, agent);
