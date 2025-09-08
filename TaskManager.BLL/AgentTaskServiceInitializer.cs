@@ -25,7 +25,7 @@ public class AgentTaskServiceInitializer : IHostedService
             var taskService = scope.ServiceProvider.GetRequiredService<ITaskService>();
             
             var kernel = CreateKernel();
-            var plugin = KernelPluginFactory.CreateFromObject(new TaskServicePlugin(taskService));
+            var plugin = KernelPluginFactory.CreateFromObject(new TaskServicePlugin(_serviceProvider));
 
             kernel.Plugins.Add(plugin);
 

@@ -3,69 +3,56 @@ using System.ComponentModel;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TaskManager.Domain;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace TaskManager.BLL;
 
 public sealed class TaskServicePlugin
 {
-    private readonly ITaskService _taskService;
+    private readonly IServiceProvider _serviceProvider;
 
-    public TaskServicePlugin(ITaskService taskService)
+    public TaskServicePlugin(IServiceProvider serviceProvider)
     {
-        _taskService = taskService;
+        _serviceProvider = serviceProvider;
     }
 
     [KernelFunction, Description("Provides a list of tasks.")]
     public Task<IEnumerable<TaskItem>> GetTasksAsync()
     {
-        var tasks = new List<TaskItem>
-        {
-            new TaskItem
-            {
-                Title = "Title1",
-                Description = "Description",
-                DueDate = DateTime.UtcNow.AddDays(7),
-                IsCompleted = false
-            },
-            new TaskItem
-            {
-                Title = "Title2",
-                Description = "Description",
-                DueDate = DateTime.UtcNow.AddDays(7),
-                IsCompleted = false
-            }
-        };
-
-        return Task.FromResult<IEnumerable<TaskItem>>(tasks);
-        // return Task.FromResult(_taskService.GetTasks());
+        using var scope = _serviceProvider.CreateScope();
+        var taskService = scope.ServiceProvider.GetRequiredService<ITaskService>();
+        return Task.FromResult(taskService.GetTasks());
     }
 
     [KernelFunction, Description("Creates a new task.")]
     public Task<TaskItem> CreateAsync(TaskItem task)
     {
-        return Task.FromResult(task);
-        // return Task.FromResult(_taskService.Create(task));
+        using var scope = _serviceProvider.CreateScope();
+        var taskService = scope.ServiceProvider.GetRequiredService<ITaskService>();
+        return Task.FromResult(taskService.Create(task));
     }
 
-    [KernelFunction, Description("Finds a task by title.")]
+    [KernelFunction, Description("Finds a task by title. Returns null if not found.")]
     public Task<TaskItem?> FindByNameAsync(string title)
     {
-        var task = new TaskItem
-        {
-            Title = title,
-            Description = "Description",
-            DueDate = DateTime.UtcNow.AddDays(7),
-            IsCompleted = false
-        };
-
-        return Task.FromResult(task);
-        // return Task.FromResult(_taskService.FindByName(title));
+        using var scope = _serviceProvider.CreateScope();
+        var taskService = scope.ServiceProvider.GetRequiredService<ITaskService>();
+        return Task.FromResult(taskService.FindByName(title));
     }
 
     [KernelFunction, Description("Marks a task as complete.")]
-    public Task MarkCompleteAsync(int id)
+    public Task<TaskItem?> MarkCompleteAsync(string title)
     {
-        // _taskService.MarkComplete(id);
-        return Task.CompletedTask;
+        using var scope = _serviceProvider.CreateScope();
+        var taskService = scope.ServiceProvider.GetRequiredService<ITaskService>();
+        var task = taskService.FindByName(title);
+
+        if (task is null)
+            return Task.FromResult<TaskItem?>(null);
+
+    
+        taskService.MarkComplete(task.Id);
+
+        return Task.FromResult<TaskItem?>(task);
     }
 }

@@ -36,9 +36,9 @@ public class AgentTaskService
         await foreach (var response in _agent.InvokeAsync(message))
         {
             var formattedResponse = FormatResponse(response);
-            Task<FunctionResultContent>[] functionResults = await ProcessFunctionCalls(response, _kernel).ToArrayAsync();
+            FunctionResultContent[] functionResults = await ProcessFunctionCalls(response, _kernel).ToArrayAsync();
 
-            foreach (ChatMessageContent functionResult in functionResults.Select(result => result.Result.ToChatMessage()))
+            foreach (ChatMessageContent functionResult in functionResults.Select(result => result.ToChatMessage()))
             {
                 formattedResponse += FormatResponse(functionResult);
             }
@@ -67,21 +67,34 @@ public class AgentTaskService
             else if (item is FunctionResultContent functionResult)
             {
                 //ret += $"  [{item.GetType().Name}] {functionResult.CallId} - {functionResult.Result?.AsJson() ?? "*"}";
-                if (functionResult.Result is TaskItem task)
-                    ret += $"Task: Id={task.Id}, Title={task.Title}, DueDate={task.DueDate}, IsCompleted={task.IsCompleted}\n";
+                if (functionResult.Result is IEnumerable<TaskItem> tasks)
+                {
+                    foreach (var task in tasks)
+                        ret += $"Task: Id={task.Id}: Title={task.Title}: DueDate={task.DueDate}: IsCompleted={task.IsCompleted}\n";
+                }
+                else if (functionResult.Result is TaskItem task)
+                {
+                    ret += $"Task: Id={task.Id}: Title={task.Title}: DueDate={task.DueDate}: IsCompleted={task.IsCompleted}\n";
+                }
+                else if (functionResult.Result is null)
+                {
+                    ret += $"No task found.\n";
+                }
                 else
+                {
                     ret += $"{functionResult.Result?.AsJson() ?? "*"}\n";
+                }
             }
         }
 
         return ret;
     }
 
-    private async IAsyncEnumerable<Task<FunctionResultContent>> ProcessFunctionCalls(ChatMessageContent response, Kernel kernel)
+    private async IAsyncEnumerable<FunctionResultContent> ProcessFunctionCalls(ChatMessageContent response, Kernel kernel)
     {
         foreach (FunctionCallContent functionCall in response.Items.OfType<FunctionCallContent>())
         {
-            yield return functionCall.InvokeAsync(kernel);
+            yield return await functionCall.InvokeAsync(kernel);
         }
     }
 

@@ -98,8 +98,12 @@ public class IndexModel : PageModel
             answer = $"Error: {ex.Message}";
         }
 
-        ChatbotAnswer = answer;
-        return new JsonResult(new { answer = ChatbotAnswer });
+    ChatbotAnswer = answer;
+
+    // Refresh the list of tasks after chatbot interaction
+    Tasks = await _http.GetFromJsonAsync<List<TaskItem>>("/api/tasks") ?? [];
+
+    return new JsonResult(new { answer = ChatbotAnswer, tasks = Tasks });
     }
 }
 

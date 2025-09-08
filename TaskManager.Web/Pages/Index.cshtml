@@ -92,6 +92,9 @@
             if (resp.ok) {
                 const data = await resp.json();
                 appendMsg('Bot', data.answer || "No answer.");
+                if (data.tasks) {
+                    refreshTaskList(data.tasks);
+                }
             } else {
                 appendMsg('Bot', "Sorry, there was an error.");
             }
@@ -105,6 +108,21 @@
         div.innerHTML = `<strong>${sender}:</strong> ${text}`;
         messages.appendChild(div);
         messages.scrollTop = messages.scrollHeight;
+    }
+
+    function refreshTaskList(tasks) {
+        const ul = document.querySelector('ul');
+        if (!ul) return;
+        ul.innerHTML = '';
+        for (const t of tasks) {
+            const li = document.createElement('li');
+            let html = `<span><strong>${t.title}</strong> - ${new Date(t.dueDate).toLocaleDateString()} - ${(t.isCompleted ? "✅" : "❌")}</span>`;
+            if (!t.isCompleted) {
+                html += `<form method='post'><input type='hidden' name='Id' value='${t.id}' /><button type='submit'>Complete</button></form>`;
+            }
+            li.innerHTML = html;
+            ul.appendChild(li);
+        }
     }
 })();
 </script>
