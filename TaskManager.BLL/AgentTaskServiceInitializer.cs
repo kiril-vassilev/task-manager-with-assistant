@@ -53,7 +53,7 @@ public class AgentTaskServiceInitializer : IHostedService
                     "Use it to answer questions about tasks such as: "+
                     "Are there tasks like <description>?" +
                     "Do I have to do something like <description>?" +
-                    "Use TaskServicePlugin to get all tasks, get a task by title, mark a task as complete, or to create a new one.",
+                    "Use TaskServicePlugin to get all tasks, get a task by title, mark a task as complete, delete a task, or to create a new one.",
                     Name = "TaskManagerAgent",
                     Kernel = kernel,
                     Arguments = new KernelArguments(new PromptExecutionSettings() { FunctionChoiceBehavior = FunctionChoiceBehavior.Auto(autoInvoke: false) }),

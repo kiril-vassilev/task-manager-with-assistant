@@ -7,5 +7,6 @@ public interface ITaskService
     IEnumerable<TaskItem> GetTasks();
     TaskItem Create(TaskItem task);
     void MarkComplete(int id);
+    void Delete(int id);
     TaskItem? FindByTitle(string title);
 }

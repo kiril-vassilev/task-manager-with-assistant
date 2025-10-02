@@ -26,6 +26,12 @@ public class TaskService : ITaskService
         _repo.Update(task);
     }
 
+        public void Delete(int id)
+    {
+        var task = _repo.GetById(id) ?? throw new KeyNotFoundException("Task not found");
+        _repo.Delete(task.Id);
+    }
+
     public TaskItem? FindByTitle(string title)
     {
         return _repo.FindByTitle(title);

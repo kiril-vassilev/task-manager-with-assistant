@@ -50,9 +50,21 @@ public sealed class TaskServicePlugin
         if (task is null)
             return Task.FromResult<TaskItem?>(null);
 
-    
         taskService.MarkComplete(task.Id);
 
         return Task.FromResult<TaskItem?>(task);
+    }
+
+    [KernelFunction, Description("Delete a task. Make sure the user really wants to delete it.")]
+    public void DeleteAsync(string title)
+    {
+        using var scope = _serviceProvider.CreateScope();
+        var taskService = scope.ServiceProvider.GetRequiredService<ITaskService>();
+        var task = taskService.FindByTitle(title);
+
+        if (task is null)
+            return;
+
+        taskService.Delete(task.Id);
     }
 }
