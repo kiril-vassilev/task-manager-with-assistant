@@ -26,8 +26,8 @@ public class TaskService : ITaskService
         _repo.Update(task);
     }
 
-        public TaskItem? FindByName(string name)
+    public TaskItem? FindByTitle(string title)
     {
-        return _repo.FindByName(name);
+        return _repo.FindByTitle(title);
     }
 }

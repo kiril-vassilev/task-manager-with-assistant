@@ -22,7 +22,7 @@
     {
         <li>
             <span>
-                <strong>@t.Title</strong> - @t.DueDate.ToShortDateString() - @(t.IsCompleted ? "✅" : "❌")
+                <strong>@t.Title</strong> - @t.Description - @t.DueDate.ToShortDateString() - @(t.IsCompleted ? "✅" : "❌")
             </span>
             @if(!t.IsCompleted)
             {
@@ -116,7 +116,7 @@
         ul.innerHTML = '';
         for (const t of tasks) {
             const li = document.createElement('li');
-            let html = `<span><strong>${t.title}</strong> - ${new Date(t.dueDate).toLocaleDateString()} - ${(t.isCompleted ? "✅" : "❌")}</span>`;
+            let html = `<span><strong>${t.title}</strong> - ${t.Description} - ${new Date(t.dueDate).toLocaleDateString()} - ${(t.isCompleted ? "✅" : "❌")}</span>`;
             if (!t.isCompleted) {
                 html += `<form method='post'><input type='hidden' name='Id' value='${t.id}' /><button type='submit'>Complete</button></form>`;
             }

@@ -24,7 +24,7 @@ public sealed class TaskServicePlugin
         return Task.FromResult(taskService.GetTasks());
     }
 
-    [KernelFunction, Description("Creates a new task.")]
+    [KernelFunction, Description("Creates a new task. Ask the user for title, description, and due date in the future.")]
     public Task<TaskItem> CreateAsync(TaskItem task)
     {
         using var scope = _serviceProvider.CreateScope();
@@ -32,12 +32,12 @@ public sealed class TaskServicePlugin
         return Task.FromResult(taskService.Create(task));
     }
 
-    [KernelFunction, Description("Finds a task by title. Returns null if not found.")]
+    [KernelFunction, Description("Finds a task by title. Do not use it for searching by description or other fields.")]
     public Task<TaskItem?> FindByNameAsync(string title)
     {
         using var scope = _serviceProvider.CreateScope();
         var taskService = scope.ServiceProvider.GetRequiredService<ITaskService>();
-        return Task.FromResult(taskService.FindByName(title));
+        return Task.FromResult(taskService.FindByTitle(title));
     }
 
     [KernelFunction, Description("Marks a task as complete.")]
@@ -45,7 +45,7 @@ public sealed class TaskServicePlugin
     {
         using var scope = _serviceProvider.CreateScope();
         var taskService = scope.ServiceProvider.GetRequiredService<ITaskService>();
-        var task = taskService.FindByName(title);
+        var task = taskService.FindByTitle(title);
 
         if (task is null)
             return Task.FromResult<TaskItem?>(null);

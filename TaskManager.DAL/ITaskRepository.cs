@@ -9,5 +9,5 @@ public interface ITaskRepository
     TaskItem Add(TaskItem task);
     void Update(TaskItem task);
     void Delete(int id);
-    TaskItem? FindByName(string name);
+    TaskItem? FindByTitle(string title);
 }

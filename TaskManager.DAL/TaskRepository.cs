@@ -32,8 +32,8 @@ public class TaskRepository : ITaskRepository
         _context.SaveChanges();
     }
 
-    public TaskItem? FindByName(string name)
+    public TaskItem? FindByTitle(string title)
     {
-        return _context.Tasks.FirstOrDefault(t => t.Title == name);
+        return _context.Tasks.FirstOrDefault(t => t.Title == title);
     }
 }

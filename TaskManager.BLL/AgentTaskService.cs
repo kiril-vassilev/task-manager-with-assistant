@@ -70,11 +70,11 @@ public class AgentTaskService
                 if (functionResult.Result is IEnumerable<TaskItem> tasks)
                 {
                     foreach (var task in tasks)
-                        ret += $"Task: Id={task.Id}: Title={task.Title}: DueDate={task.DueDate}: IsCompleted={task.IsCompleted}\n";
+                        ret += $"Task: Title={task.Title}: Description={task.Description}: DueDate={task.DueDate:dd//MMM//yyyy}: IsCompleted={task.IsCompleted}\n";
                 }
                 else if (functionResult.Result is TaskItem task)
                 {
-                    ret += $"Task: Id={task.Id}: Title={task.Title}: DueDate={task.DueDate}: IsCompleted={task.IsCompleted}\n";
+                    ret += $"Task: Title={task.Title}: Description={task.Description}: DueDate={task.DueDate:dd//MMM//yyyy}: IsCompleted={task.IsCompleted}\n";
                 }
                 else if (functionResult.Result is null)
                 {

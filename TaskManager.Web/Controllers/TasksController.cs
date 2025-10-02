@@ -31,9 +31,9 @@ public class TasksController : ControllerBase
     }
     
     [HttpGet("find")]
-    public ActionResult<TaskItem> FindByName([FromQuery] string name)
+    public ActionResult<TaskItem> FindByTitle([FromQuery] string title)
     {
-        var task = _service.FindByName(name);
+        var task = _service.FindByTitle(title);
         if (task == null) return NotFound();
         return Ok(task);
     }    
