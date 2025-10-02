@@ -3,6 +3,15 @@ using TaskManager.BLL;
 using TaskManager.DAL;
 using TaskManager.Domain;
 
+
+IConfigurationRoot configRoot = new ConfigurationBuilder()
+    .AddEnvironmentVariables()
+    .AddUserSecrets(System.Reflection.Assembly.GetExecutingAssembly())
+    .Build();
+
+TaskManagerConfiguration.Initialize(configRoot);
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services

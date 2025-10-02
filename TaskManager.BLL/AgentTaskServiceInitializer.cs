@@ -91,8 +91,8 @@ public class AgentTaskServiceInitializer : IHostedService
     private IEmbeddingGenerator<string, Embedding<float>> CreateEmbeddingGenerator()
     {
         var client = new AzureOpenAIClient(
-            new Uri("TestConfiguration.AzureOpenAI.Endpoint"), new AzureCliCredential())
-            .GetEmbeddingClient("TestConfiguration.AzureOpenAI.EmbeddingDeploymentName")
+            new Uri(TaskManagerConfiguration.AzureOpenAIEmbeddings.Endpoint), new AzureCliCredential())
+            .GetEmbeddingClient(TaskManagerConfiguration.AzureOpenAIEmbeddings.DeploymentName)
             .AsIEmbeddingGenerator(1536);
 
         return client;
@@ -103,9 +103,9 @@ public class AgentTaskServiceInitializer : IHostedService
         var builder = Kernel.CreateBuilder();
 
         builder.AddAzureOpenAIChatCompletion(
-            "TestConfiguration.AzureOpenAI.ChatDeploymentName",
-            "TestConfiguration.AzureOpenAI.Endpoint",
-            "TestConfiguration.AzureOpenAI.ApiKey"
+            TaskManagerConfiguration.AzureOpenAI.DeploymentName,
+            TaskManagerConfiguration.AzureOpenAI.Endpoint,
+            TaskManagerConfiguration.AzureOpenAI.ApiKey
         );
 
         return builder.Build();
