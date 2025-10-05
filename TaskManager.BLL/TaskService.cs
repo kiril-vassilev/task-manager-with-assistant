@@ -14,8 +14,13 @@ public class TaskService : ITaskService
     {
         if (string.IsNullOrWhiteSpace(task.Title))
             throw new ArgumentException("Title cannot be empty");
+
+        if (string.IsNullOrWhiteSpace(task.Description))
+            throw new ArgumentException("Description cannot be empty");
+
         if (task.DueDate.Date < DateTime.UtcNow.Date)
             throw new ArgumentException("Due date cannot be in the past");
+
         return _repo.Add(task);
     }
 
