@@ -6,7 +6,13 @@ namespace TaskManager.BLL;
 public class TaskService : ITaskService
 {
     private readonly ITaskRepository _repo;
-    public TaskService(ITaskRepository repo) => _repo = repo;
+    private readonly TaskSearchService _taskSearchService;
+
+    public TaskService(ITaskRepository repo, TaskSearchService taskSearchService)
+    {
+        _repo = repo;
+        _taskSearchService = taskSearchService;
+    }
 
     public IEnumerable<TaskItem> GetTasks() => _repo.GetAll();
 
@@ -21,6 +27,9 @@ public class TaskService : ITaskService
         if (task.DueDate.Date < DateTime.UtcNow.Date)
             throw new ArgumentException("Due date cannot be in the past");
 
+        // Add the task to vector store
+        _taskSearchService.AddVectorStoreTaskEntry(task).Wait();
+
         return _repo.Add(task);
     }
 
@@ -28,12 +37,20 @@ public class TaskService : ITaskService
     {
         var task = _repo.GetById(id) ?? throw new KeyNotFoundException("Task not found");
         task.IsCompleted = true;
+
+        // Update the task in vector store
+        _taskSearchService.AddVectorStoreTaskEntry(task).Wait();
+
         _repo.Update(task);
     }
 
         public void Delete(int id)
     {
         var task = _repo.GetById(id) ?? throw new KeyNotFoundException("Task not found");
+
+        // Remove the task from vector store
+        _taskSearchService.RemoveVectorStoreTaskEntry(task).Wait();
+
         _repo.Delete(task.Id);
     }
 

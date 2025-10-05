@@ -26,6 +26,9 @@ builder.Services.AddDbContext<TaskDbContext>(opt =>
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 
+// Register TaskSearchService as singleton
+builder.Services.AddSingleton<TaskSearchService>();
+
 // Register AgentTaskService as singleton
 builder.Services.AddSingleton<AgentTaskService>();
 

@@ -17,12 +17,18 @@ public class AgentTaskServiceInitializer : IHostedService
 {
     private readonly AgentTaskService _agentTaskService;
     private readonly IServiceProvider _serviceProvider;
+    private readonly TaskSearchService _taskSearchService;
 
-    public AgentTaskServiceInitializer(AgentTaskService agentTaskService, IServiceProvider serviceProvider)
+    public AgentTaskServiceInitializer(
+        AgentTaskService agentTaskService,
+        IServiceProvider serviceProvider,
+        TaskSearchService taskSearchService)
     {
         _agentTaskService = agentTaskService;
         _serviceProvider = serviceProvider;
+        _taskSearchService = taskSearchService;
     }
+    
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
@@ -30,14 +36,16 @@ public class AgentTaskServiceInitializer : IHostedService
         {
             var kernel = CreateKernel();
             var embeddingGenerator = CreateEmbeddingGenerator();
-            var taskSearchService = new TaskSearchService(embeddingGenerator);
+
+
+            await _taskSearchService.InitializeAsync(embeddingGenerator);
 
             // Load tasks into the vector store
             var tasks = scope.ServiceProvider.GetRequiredService<ITaskService>().GetTasks();
-            await taskSearchService.AddVectorStoreTasksEntries(tasks);
+            await _taskSearchService.AddVectorStoreTasksEntries(tasks);
 
             var taskServicePlugin = KernelPluginFactory.CreateFromObject(new TaskServicePlugin(_serviceProvider));
-            var textSearchPlugin = KernelPluginFactory.CreateFromObject(new TaskSearchPlugin(taskSearchService));
+            var textSearchPlugin = KernelPluginFactory.CreateFromObject(new TaskSearchPlugin(_taskSearchService));
 
             kernel.Plugins.Add(taskServicePlugin);
             kernel.Plugins.Add(textSearchPlugin);

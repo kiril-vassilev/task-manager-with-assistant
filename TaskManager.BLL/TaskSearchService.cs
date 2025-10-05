@@ -12,25 +12,22 @@ namespace TaskManager.BLL;
 
 public class TaskSearchService
 {
-    private readonly IEmbeddingGenerator<string, Embedding<float>> _embeddingGenerator;
-    private readonly InMemoryCollection<int, VectorStoreTasks> _collection;
+    private IEmbeddingGenerator<string, Embedding<float>>? _embeddingGenerator;
+    private InMemoryCollection<int, VectorStoreTasks>? _collection;
 
-    public TaskSearchService(IEmbeddingGenerator<string, Embedding<float>> embeddingGenerator)
+    public TaskSearchService()
+    {
+        // Empty constructor for DI
+    }
+    public async Task InitializeAsync(IEmbeddingGenerator<string, Embedding<float>> embeddingGenerator)
     {
         _embeddingGenerator = embeddingGenerator;
-        _collection = CreateTextSearchCollectionAsync().Result;
-    }
-
-    private async Task<InMemoryCollection<int, VectorStoreTasks>> CreateTextSearchCollectionAsync()
-    {
         // Construct an InMemory vector store.
         var vectorStore = new InMemoryVectorStore();
 
         // Get and create collection if it doesn't exist.
-        var collection = vectorStore.GetCollection<int, VectorStoreTasks>("sktasks");
-        await collection.EnsureCollectionExistsAsync();
-
-        return collection;
+        _collection = vectorStore.GetCollection<int, VectorStoreTasks>("sktasks");
+        await _collection.EnsureCollectionExistsAsync();
     }
 
     public async Task AddVectorStoreTasksEntries(IEnumerable<TaskItem> tasks)
@@ -44,6 +41,13 @@ public class TaskSearchService
 
     public async Task AddVectorStoreTaskEntry(TaskItem task)
     {
+        if (_embeddingGenerator == null)
+            throw new InvalidOperationException("_embeddingGenerator not initialized.");
+
+        if (_collection == null)
+            throw new InvalidOperationException("_collection not initialized.");
+
+
         if (task.Description == null || task.Description == string.Empty)
             return;
 
@@ -63,11 +67,21 @@ public class TaskSearchService
 
     public async Task RemoveVectorStoreTaskEntry(TaskItem task)
     {
+        if (_collection == null)
+            throw new InvalidOperationException("_collection not initialized.");
+
         await _collection.DeleteAsync(task.Id);
     }
 
     public async Task<IEnumerable<TaskItem>> SearchAsync(string query, int filterCompleted = 0, int filterByDueDate = 0)
     {
+        if (_embeddingGenerator == null)
+            throw new InvalidOperationException("_embeddingGenerator not initialized.");
+
+        if (_collection == null)
+            throw new InvalidOperationException("_collection not initialized.");
+
+
         var searchVector = (await _embeddingGenerator.GenerateAsync(query)).Vector;
 
         // Define filterIsCompleted predicate based on filterCompleted
