@@ -9,7 +9,7 @@ using Azure.Identity;
 using Microsoft.Extensions.AI;
 using Microsoft.SemanticKernel.Connectors.InMemory;
 using Microsoft.SemanticKernel.Data;
-
+using Microsoft.SemanticKernel.ChatCompletion;
 
 namespace TaskManager.BLL;
 
@@ -70,7 +70,9 @@ public class AgentTaskServiceInitializer : IHostedService
                     Arguments = new KernelArguments(new PromptExecutionSettings() { FunctionChoiceBehavior = FunctionChoiceBehavior.Auto(autoInvoke: false) }),
                 };
 
-            _agentTaskService.Initialize(kernel, agent);
+            var history = new ChatHistory();
+
+            _agentTaskService.Initialize(kernel, agent, history);
         }
         await Task.CompletedTask;
     }

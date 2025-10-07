@@ -9,6 +9,8 @@ public class AgentTaskService
 {
     private Kernel? _kernel;
     private ChatCompletionAgent? _agent;
+    private ChatHistory? _history;
+
 
     public AgentTaskService()
     {
@@ -16,10 +18,11 @@ public class AgentTaskService
     }
 
     // Initialization method (no plugin import)
-    public void Initialize(Kernel kernel, ChatCompletionAgent agent)
+    public void Initialize(Kernel kernel, ChatCompletionAgent agent, ChatHistory history)
     {
         _kernel = kernel;
         _agent = agent;
+        _history = history;
     }
 
     public async Task<string> AskQuestionAsync(string question)
@@ -30,17 +33,24 @@ public class AgentTaskService
         if (_kernel == null)
             throw new InvalidOperationException("Kernel not initialized.");
 
+        if (_history == null)   
+            throw new InvalidOperationException("History not initialized.");
+
 
         ChatMessageContent message = new(AuthorRole.User, question);
+        _history.Add(message);
 
-        await foreach (var response in _agent.InvokeAsync(message))
+        await foreach (var response in _agent.InvokeAsync(_history))
         {
             var formattedResponse = FormatResponse(response);
+            _history.Add(response);
+            
             FunctionResultContent[] functionResults = await ProcessFunctionCalls(response, _kernel).ToArrayAsync();
 
             foreach (ChatMessageContent functionResult in functionResults.Select(result => result.ToChatMessage()))
             {
                 formattedResponse += FormatResponse(functionResult);
+                _history.Add(functionResult);
             }
 
             return formattedResponse;
