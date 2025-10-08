@@ -55,16 +55,18 @@ public sealed class TaskServicePlugin
         return Task.FromResult<TaskItem?>(task);
     }
 
-    [KernelFunction, Description("Delete a task. Make sure the user really wants to delete it.")]
-    public void DeleteAsync(string title)
+    [KernelFunction, Description("Delete a task. " +
+    "Before deleting a task, confirm with the user that they want to delete it.")]
+    public string DeleteAsync(string title)
     {
         using var scope = _serviceProvider.CreateScope();
         var taskService = scope.ServiceProvider.GetRequiredService<ITaskService>();
         var task = taskService.FindByTitle(title);
 
         if (task is null)
-            return;
+            return "Task not found.";
 
         taskService.Delete(task.Id);
+        return "Task deleted successfully.";
     }
 }

@@ -25,7 +25,7 @@ public class AgentTaskService
         _history = history;
     }
 
-    public async Task<string> AskQuestionAsync(string question)
+    public async Task<AskResponse> AskQuestionAsync(string question)
     {
         if (_agent == null)
             throw new InvalidOperationException("Agent not initialized.");
@@ -36,6 +36,7 @@ public class AgentTaskService
         if (_history == null)   
             throw new InvalidOperationException("History not initialized.");
 
+        var tasks = new List<TaskItem>();
 
         ChatMessageContent message = new(AuthorRole.User, question);
         _history.Add(message);
@@ -44,18 +45,32 @@ public class AgentTaskService
         {
             var formattedResponse = FormatResponse(response);
             _history.Add(response);
-            
+
             FunctionResultContent[] functionResults = await ProcessFunctionCalls(response, _kernel).ToArrayAsync();
 
-            foreach (ChatMessageContent functionResult in functionResults.Select(result => result.ToChatMessage()))
+            foreach (var functionResult in functionResults)
             {
-                formattedResponse += FormatResponse(functionResult);
-                _history.Add(functionResult);
+                var chatMessage = functionResult.ToChatMessage();
+                _history.Add(chatMessage);
+
+                var (resultTasks, resultText) = FormatFunctionResult(functionResult);
+
+                if (resultTasks != null && resultTasks.Any())
+                    tasks.AddRange(resultTasks);
+
+                if (!string.IsNullOrEmpty(resultText))
+                    formattedResponse += $"\n{resultText}\n";
+
+                if ((resultTasks == null || !resultTasks.Any()) && string.IsNullOrEmpty(resultText))
+                    formattedResponse += "\nNo tasks found.\n";
             }
 
-            return formattedResponse;
+            return new AskResponse
+            {
+                Answer = formattedResponse,
+                Tasks = tasks
+            };
         }
-
 
         throw new InvalidOperationException("No response from agent.");
     }
@@ -88,7 +103,7 @@ public class AgentTaskService
                 }
                 else if (functionResult.Result is null)
                 {
-                    ret += $"No task found.\n";
+                    ret += $"No data.\n";
                 }
                 else
                 {
@@ -98,6 +113,27 @@ public class AgentTaskService
         }
 
         return ret;
+    }
+
+    private (IEnumerable<TaskItem>?, string) FormatFunctionResult(FunctionResultContent functionResult)
+    {
+        if (functionResult.Result is IEnumerable<TaskItem> tasks)
+        {
+            return (tasks, string.Empty);
+        }
+        else if (functionResult.Result is TaskItem task)
+        {
+            return (new List<TaskItem> { task }, string.Empty);
+        }
+        else if (functionResult.Result is string s)
+        {
+            // return null for tasks and the string content
+            return (null, s);
+        }
+        else
+        {
+            return (null, string.Empty);
+        }
     }
 
     private async IAsyncEnumerable<FunctionResultContent> ProcessFunctionCalls(ChatMessageContent response, Kernel kernel)

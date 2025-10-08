@@ -37,13 +37,6 @@ public class IndexModel : PageModel
 
     public async Task<IActionResult> OnPostAsync()
     {
-        Console.WriteLine($"Id: {Id}");
-
-        Console.WriteLine("OnPostAsync called");
-        Console.WriteLine($"Title: {Title}");
-        Console.WriteLine($"DueDate: {DueDate}");
-        Console.WriteLine($"Description: {Description}");
-
         if (Id <= 0)
         {
             // Create new task
@@ -62,9 +55,6 @@ public class IndexModel : PageModel
         else
         {
             // Complete task
-            Console.WriteLine("OnPostCompleteAsync");
-            Console.WriteLine($"Id: {Id}");
-
             var resp = await _http.PutAsync($"/api/tasks/{Id}/complete", null);
             resp.EnsureSuccessStatusCode();
             return RedirectToPage();
@@ -81,29 +71,37 @@ public class IndexModel : PageModel
 
         ChatbotQuestion = json.RootElement.GetProperty("ChatbotQuestion").GetString();
 
-        // Log
-        Console.WriteLine($"User asked: {ChatbotQuestion}");
-
-        // Call AgentController API
-        string? answer = null;
+        // Call AgentController API and expect structured AskResponse JSON
+        TaskManager.Domain.AskResponse? askResponse = null;
         try
         {
             var payload = new { question = ChatbotQuestion };
             var response = await _http.PostAsJsonAsync("/api/agent/ask", payload);
-            response.EnsureSuccessStatusCode();
-            answer = await response.Content.ReadAsStringAsync();
+            // Even if non-success, try to deserialize structured response
+            var content = await response.Content.ReadAsStringAsync();
+            try
+            {
+                askResponse = JsonSerializer.Deserialize<TaskManager.Domain.AskResponse>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            }
+            catch
+            {
+                // Fallback: wrap raw content as answer
+                askResponse = new TaskManager.Domain.AskResponse { Answer = content ?? string.Empty, Tasks = new List<TaskManager.Domain.TaskItem>() };
+            }
         }
         catch (Exception ex)
         {
-            answer = $"Error: {ex.Message}";
+            askResponse = new TaskManager.Domain.AskResponse { Answer = $"Error: {ex.Message}", Tasks = new List<TaskManager.Domain.TaskItem>() };
         }
 
-    ChatbotAnswer = answer;
+        ChatbotAnswer = askResponse?.Answer;
 
-    // Refresh the list of tasks after chatbot interaction
-    Tasks = await _http.GetFromJsonAsync<List<TaskItem>>("/api/tasks") ?? [];
+        // Refresh the list of tasks after chatbot interaction: prefer tasks from response if present
+        Tasks = (askResponse?.Tasks != null && askResponse.Tasks.Count > 0)
+            ? askResponse.Tasks
+            : await _http.GetFromJsonAsync<List<TaskItem>>("/api/tasks") ?? new List<TaskItem>();
 
-    return new JsonResult(new { answer = ChatbotAnswer, tasks = Tasks });
+        return new JsonResult(new { answer = ChatbotAnswer, tasks = Tasks });
     }
 }
 
