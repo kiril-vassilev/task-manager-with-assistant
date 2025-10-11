@@ -144,4 +144,11 @@ public class AgentTaskService
         }
     }
 
+    public void ClearHistory()
+    {
+        // Replace the history with a new, empty instance. The original ChatHistory
+        // is only held here (created in the initializer), so reassigning is safe.
+        _history = new ChatHistory();
+    }
+
 }

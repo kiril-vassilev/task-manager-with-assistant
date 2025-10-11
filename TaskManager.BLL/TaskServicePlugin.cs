@@ -55,8 +55,7 @@ public sealed class TaskServicePlugin
         return Task.FromResult<TaskItem?>(task);
     }
 
-    [KernelFunction, Description("Delete a task. " +
-    "Before deleting a task, confirm with the user that they want to delete it.")]
+    [KernelFunction, Description("Delete a task. Mkake sure to confirm with the user before deleting.")]
     public string DeleteAsync(string title)
     {
         using var scope = _serviceProvider.CreateScope();

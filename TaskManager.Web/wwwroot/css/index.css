@@ -93,7 +93,7 @@ a:hover {
     position: fixed;
     bottom: 24px;
     right: 24px;
-    width: 320px;
+    width: 520px;
     max-width: 90vw;
     background: #fff;
     border: 1px solid #ccc;
@@ -134,7 +134,7 @@ a:hover {
     font-size: 1em;
     outline: none;
 }
-#chatbot-send {
+#chatbot-send, #chatbot-clear {
     background: #0078d4;
     color: #fff;
     border: none;

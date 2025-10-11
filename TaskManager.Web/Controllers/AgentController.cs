@@ -35,4 +35,18 @@ public class AgentController : ControllerBase
             return StatusCode(500, new AskResponse { Answer = ex.Message, Tasks = new List<TaskItem>() });
         }
     }
+
+    [HttpPost("clear")]
+    public ActionResult ClearHistory()
+    {
+        try
+        {
+            _agentService.ClearHistory();
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { error = ex.Message });
+        }
+    }
 }

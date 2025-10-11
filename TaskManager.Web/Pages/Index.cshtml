@@ -51,6 +51,7 @@
     </div>
     <form id="chatbot-input-area" autocomplete="off">
         <input id="chatbot-input" type="text" placeholder="Type your message..." />
+        <button id="chatbot-clear" type="button">Clear</button>
         <button id="chatbot-send" type="submit">Send</button>
     </form>
 </div>
@@ -62,6 +63,7 @@
     const messages = document.getElementById('chatbot-messages');
     const input = document.getElementById('chatbot-input');
     const form = document.getElementById('chatbot-input-area');
+    const clearBtn = document.getElementById('chatbot-clear');
 
     toggleBtn.onclick = () => {
         popup.style.display = 'flex';
@@ -109,6 +111,27 @@
         messages.appendChild(div);
         messages.scrollTop = messages.scrollHeight;
     }
+    
+    // Clear button handler: clears UI and asks server to clear stored history
+    clearBtn.onclick = async function() {
+        // Clear UI messages and reset greeting
+        messages.innerHTML = '<div style="color:#888;">Hello! How can I help you?</div>';
+        input.value = '';
+
+        // Try to clear server-side history (best-effort)
+        try {
+            await fetch('/api/agent/clear', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                }
+            });
+        } catch (err) {
+            // network errors are non-fatal for UI clearing
+            console.warn('Failed to clear server history', err);
+        }
+    };
 
     function refreshTaskList(tasks) {
         const ul = document.querySelector('ul');
