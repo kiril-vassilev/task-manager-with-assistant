@@ -35,9 +35,10 @@ public class AgentTaskServiceInitializer : IHostedService
         using (var scope = _serviceProvider.CreateAsyncScope())
         {
             var kernel = CreateKernel();
+            var toolsPlugin = KernelPluginFactory.CreateFromObject(new ToolsPlugin());
+            
+            // Create the embeding generator and initialize the TaskSearchService
             var embeddingGenerator = CreateEmbeddingGenerator();
-
-
             await _taskSearchService.InitializeAsync(embeddingGenerator);
 
             // Load tasks into the vector store
@@ -47,6 +48,7 @@ public class AgentTaskServiceInitializer : IHostedService
             var taskServicePlugin = KernelPluginFactory.CreateFromObject(new TaskServicePlugin(_serviceProvider));
             var textSearchPlugin = KernelPluginFactory.CreateFromObject(new TaskSearchPlugin(_taskSearchService));
 
+            kernel.Plugins.Add(toolsPlugin);
             kernel.Plugins.Add(taskServicePlugin);
             kernel.Plugins.Add(textSearchPlugin);
 
@@ -61,11 +63,14 @@ public class AgentTaskServiceInitializer : IHostedService
                     "The description describes what the task is for and what the user is supposed to do." +
                     "The due date is when the task is supposed to be done by." +
                     "The iscompleted status shows if the task is done or not." +
-                    "Use TasksSearch plugin to search for specific task or tasks." +
+                    "Use ToolsPlugin to get the today's date." +
+                    "Use TasksSearchPlugin to search for specific task or tasks." +
                     "Use it to answer questions about tasks such as: " +
                     "Are there tasks like <description>?" +
                     "Do I have to do something like <description>?" +
-                    "Use TaskServicePlugin to get all tasks, get a task by title, mark a task as complete, delete a task, or to create a new one. " +
+                    "Use TaskServicePlugin to get all tasks, get a task by title, mark a task as complete, " +
+                    "delete a task (Make sure to confirm with the user before deleting), " +
+                    "or to create a new one. " +
                     "This is the Task Manager Manual for reference: " +
                     ReadTheManual(),
                     Name = "TaskManagerAgent",

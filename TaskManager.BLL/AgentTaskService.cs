@@ -40,7 +40,7 @@ public class AgentTaskService
         if (_kernel == null)
             throw new InvalidOperationException("Kernel not initialized.");
 
-        if (_history == null)   
+        if (_history == null)
             throw new InvalidOperationException("History not initialized.");
 
         var tasks = new List<TaskItem>();
@@ -81,6 +81,14 @@ public class AgentTaskService
 
         throw new InvalidOperationException("No response from agent.");
     }
+    
+    private async IAsyncEnumerable<FunctionResultContent> ProcessFunctionCalls(ChatMessageContent response, Kernel kernel)
+    {
+        foreach (FunctionCallContent functionCall in response.Items.OfType<FunctionCallContent>())
+        {
+            yield return await functionCall.InvokeAsync(kernel);
+        }
+    }    
 
     private string FormatResponse(ChatMessageContent response)
     {
@@ -95,27 +103,6 @@ public class AgentTaskService
             else if (item is FunctionCallContent functionCall)
             {
                 ret += $"  [{item.GetType().Name}] {functionCall.Id}\n";
-            }
-            else if (item is FunctionResultContent functionResult)
-            {
-                //ret += $"  [{item.GetType().Name}] {functionResult.CallId} - {functionResult.Result?.AsJson() ?? "*"}";
-                if (functionResult.Result is IEnumerable<TaskItem> tasks)
-                {
-                    foreach (var task in tasks)
-                        ret += $"Task: Title={task.Title}: Description={task.Description}: DueDate={task.DueDate:dd//MMM//yyyy}: IsCompleted={task.IsCompleted}\n";
-                }
-                else if (functionResult.Result is TaskItem task)
-                {
-                    ret += $"Task: Title={task.Title}: Description={task.Description}: DueDate={task.DueDate:dd//MMM//yyyy}: IsCompleted={task.IsCompleted}\n";
-                }
-                else if (functionResult.Result is null)
-                {
-                    ret += $"No data.\n";
-                }
-                else
-                {
-                    ret += $"{functionResult.Result?.AsJson() ?? "*"}\n";
-                }
             }
         }
 
@@ -140,14 +127,6 @@ public class AgentTaskService
         else
         {
             return (null, string.Empty);
-        }
-    }
-
-    private async IAsyncEnumerable<FunctionResultContent> ProcessFunctionCalls(ChatMessageContent response, Kernel kernel)
-    {
-        foreach (FunctionCallContent functionCall in response.Items.OfType<FunctionCallContent>())
-        {
-            yield return await functionCall.InvokeAsync(kernel);
         }
     }
 }

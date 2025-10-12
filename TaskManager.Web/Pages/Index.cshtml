@@ -133,13 +133,15 @@
         }
     };
 
+    const dateFmt = new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+
     function refreshTaskList(tasks) {
         const ul = document.querySelector('ul');
         if (!ul) return;
         ul.innerHTML = '';
         for (const t of tasks) {
             const li = document.createElement('li');
-            let html = `<span><strong>${t.title}</strong> - ${t.description} - ${new Date(t.dueDate).toLocaleDateString()} - ${(t.isCompleted ? "✅" : "❌")}</span>`;
+            let html = `<span><strong>${t.title}</strong> - ${t.description} - ${dateFmt.format(new Date(t.dueDate))} - ${(t.isCompleted ? "✅" : "❌")}</span>`;
             if (!t.isCompleted) {
                 html += `<form method='post'><input type='hidden' name='Id' value='${t.id}' /><button type='submit'>Complete</button></form>`;
             }

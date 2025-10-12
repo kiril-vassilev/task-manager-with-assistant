@@ -78,7 +78,6 @@ public class TaskSearchService
     // 0 - no filter, 1 - only not completed, 2 - only completed.
     // Use <filterByDueDate> to filter by due date. 
     // 0 - no filter, 1 - only past due, 2 - only due today, 3 - only due in future.
-    // Do not use it for finding task by title or giving all tasks.
     public async Task<IEnumerable<TaskItem>> SearchAsync(string query, int filterCompleted = 0, int filterByDueDate = 0)
     {
         if (_embeddingGenerator == null)
