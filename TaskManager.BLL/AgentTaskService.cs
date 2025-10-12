@@ -3,6 +3,7 @@ using Microsoft.SemanticKernel.Agents;
 using Microsoft.SemanticKernel.ChatCompletion;
 using TaskManager.Domain;
 
+
 namespace TaskManager.BLL;
 
 public class AgentTaskService
@@ -18,11 +19,17 @@ public class AgentTaskService
     }
 
     // Initialization method (no plugin import)
-    public void Initialize(Kernel kernel, ChatCompletionAgent agent, ChatHistory history)
+    public void Initialize(Kernel kernel, ChatCompletionAgent agent)
     {
         _kernel = kernel;
         _agent = agent;
-        _history = history;
+
+        CreateClearHistory();
+    }
+
+    public void CreateClearHistory()
+    {
+        _history = new ChatHistory();
     }
 
     public async Task<AskResponse> AskQuestionAsync(string question)
@@ -143,12 +150,4 @@ public class AgentTaskService
             yield return await functionCall.InvokeAsync(kernel);
         }
     }
-
-    public void ClearHistory()
-    {
-        // Replace the history with a new, empty instance. The original ChatHistory
-        // is only held here (created in the initializer), so reassigning is safe.
-        _history = new ChatHistory();
-    }
-
 }

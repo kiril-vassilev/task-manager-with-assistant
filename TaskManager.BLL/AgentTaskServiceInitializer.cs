@@ -28,7 +28,7 @@ public class AgentTaskServiceInitializer : IHostedService
         _serviceProvider = serviceProvider;
         _taskSearchService = taskSearchService;
     }
-    
+
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
@@ -54,27 +54,38 @@ public class AgentTaskServiceInitializer : IHostedService
                 new()
                 {
                     Instructions =
-                    "You are a helpful assistant that manages tasks. " +
+                    "You are a helpful assistant that manages tasks " +
+                    "and answer the user's questions about how to use the system using the manual. " +
                     "Each task has a title, description, due date, and iscompleted status." +
                     "The title is not descriptive for the task." +
                     "The description describes what the task is for and what the user is supposed to do." +
-                    "The due date is when the task is spupposed to be done by." +
+                    "The due date is when the task is supposed to be done by." +
                     "The iscompleted status shows if the task is done or not." +
                     "Use TasksSearch plugin to search for specific task or tasks." +
-                    "Use it to answer questions about tasks such as: "+
+                    "Use it to answer questions about tasks such as: " +
                     "Are there tasks like <description>?" +
                     "Do I have to do something like <description>?" +
-                    "Use TaskServicePlugin to get all tasks, get a task by title, mark a task as complete, delete a task, or to create a new one.",
+                    "Use TaskServicePlugin to get all tasks, get a task by title, mark a task as complete, delete a task, or to create a new one. " +
+                    "This is the Task Manager Manual for reference: " +
+                    ReadTheManual(),
                     Name = "TaskManagerAgent",
                     Kernel = kernel,
                     Arguments = new KernelArguments(new PromptExecutionSettings() { FunctionChoiceBehavior = FunctionChoiceBehavior.Auto(autoInvoke: false) }),
                 };
 
-            var history = new ChatHistory();
-
-            _agentTaskService.Initialize(kernel, agent, history);
+            _agentTaskService.Initialize(kernel, agent);
         }
         await Task.CompletedTask;
+    }
+
+    private string ReadTheManual()
+    {
+        var manualFilePath = Path.Combine(AppContext.BaseDirectory, "Manual.txt");
+
+        if (File.Exists(manualFilePath))
+            return File.ReadAllText(manualFilePath);
+        else
+            throw new InvalidOperationException("Manual.txt file not found.");
     }
 
     private IEmbeddingGenerator<string, Embedding<float>> CreateEmbeddingGenerator()

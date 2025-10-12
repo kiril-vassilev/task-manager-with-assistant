@@ -41,7 +41,7 @@ public class AgentController : ControllerBase
     {
         try
         {
-            _agentService.ClearHistory();
+            _agentService.CreateClearHistory();
             return NoContent();
         }
         catch (Exception ex)

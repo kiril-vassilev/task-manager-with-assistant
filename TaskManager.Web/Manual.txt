@@ -1,0 +1,20 @@
+Task Manager Manual
+===================
+
+Welcome to Task Manager — a simple and efficient way to keep all your to-dos organized in one place.
+
+Add a Task
+----------
+To add a new task:
+- Enter the Title of the task.
+- Select a Due Date — make sure it’s a future date.
+- Provide a brief Description of what needs to be done.
+- Click the 'Add Task' button to save it.
+Your new task will appear in the task list once added.
+
+Mark as Complete
+----------------
+When you finish a task:
+- Locate the task in your list.
+- Click the 'Complete' button next to it.
+The task status will then change to Completed.
