@@ -13,8 +13,15 @@ public class TaskService : ITaskService
         _repo = repo;
         _taskSearchService = taskSearchService;
     }
-
-    public IEnumerable<TaskItem> GetTasks() => _repo.GetAll();
+    
+    // Use <filterCompleted> to filter by completion status. 
+    // 0 - no filter, 1 - only not completed, 2 - only completed.
+    // Use <filterByDueDate> to filter by due date. 
+    // 0 - no filter, 1 - only past due, 2 - only due today, 3 - only due in future.
+    public IEnumerable<TaskItem> GetTasks(int filterCompleted = 0, int filterByDueDate = 0)
+    {
+        return _repo.GetAll(filterCompleted, filterByDueDate);
+    }
 
     public TaskItem Create(TaskItem task)
     {

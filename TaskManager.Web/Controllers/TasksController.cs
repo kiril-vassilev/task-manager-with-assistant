@@ -12,7 +12,11 @@ public class TasksController : ControllerBase
     public TasksController(ITaskService service) => _service = service;
 
     [HttpGet]
-    public ActionResult<IEnumerable<TaskItem>> GetAll() => Ok(_service.GetTasks());
+    public ActionResult<IEnumerable<TaskItem>> GetAll([FromQuery] int filterCompleted = 0, [FromQuery] int filterByDueDate = 0)
+    {
+        var tasks = _service.GetTasks(filterCompleted, filterByDueDate);
+        return Ok(tasks);
+    }
 
     [HttpPost]
     public ActionResult<TaskItem> Create([FromBody] TaskItem task)

@@ -68,8 +68,14 @@ public class AgentTaskServiceInitializer : IHostedService
                     "Use it to answer questions about tasks such as: " +
                     "Are there tasks like <description>?" +
                     "Do I have to do something like <description>?" +
+                    "Get me all tasks that are like <description>." +
                     "Use TaskServicePlugin to get all tasks, get a task by title, mark a task as complete, " +
-                    "delete a task (Make sure to confirm with the user before deleting), " +
+                    "Use it to answer questions about tasks such as: " +
+                    "Are there any tasks due today?" +
+                    "Do I have any overdue tasks?" +
+                    "Do I have any tasks that are not completed?" +
+                    "Get me all tasks that are overdue and not completed." +
+                    "Use it to delete a task (Make sure to confirm with the user before deleting), " +
                     "or to create a new one. " +
                     "This is the Task Manager Manual for reference: " +
                     ReadTheManual(),

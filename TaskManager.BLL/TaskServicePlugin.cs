@@ -16,12 +16,17 @@ public sealed class TaskServicePlugin
         _serviceProvider = serviceProvider;
     }
 
-    [KernelFunction, Description("Provides a list of tasks.")]
-    public Task<IEnumerable<TaskItem>> GetTasksAsync()
+    [KernelFunction, Description("Provides a list of tasks." +
+        "Use <filterCompleted> to filter by completion status. " +
+        "0 - no filter, 1 - only not completed, 2 - only completed. " +
+        "Use <filterByDueDate> to filter by due date. " +
+        "0 - no filter, 1 - only past due, 2 - only due today, 3 - only due in future. " +
+        "Do not use it for searching by description or finding a task by name.")]
+    public Task<IEnumerable<TaskItem>> GetTasksAsync(int filterCompleted = 0, int filterByDueDate = 0)
     {
         using var scope = _serviceProvider.CreateScope();
         var taskService = scope.ServiceProvider.GetRequiredService<ITaskService>();
-        return Task.FromResult(taskService.GetTasks());
+        return Task.FromResult(taskService.GetTasks(filterCompleted, filterByDueDate));
     }
 
     [KernelFunction, Description("Creates a new task. Ask the user for title, description, and due date in the future.")]
