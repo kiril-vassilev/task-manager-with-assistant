@@ -35,7 +35,7 @@ public class AgentTaskServiceInitializer : IHostedService
         using (var scope = _serviceProvider.CreateAsyncScope())
         {
             var kernel = CreateKernel();
-            var toolsPlugin = KernelPluginFactory.CreateFromObject(new ToolsPlugin());
+            var toolsPlugin = KernelPluginFactory.CreateFromObject(new ToolsPlugin(_agentTaskService));
 
             // Create the embeding generator and initialize the TaskSearchService
             var embeddingGenerator = CreateEmbeddingGenerator();
@@ -64,6 +64,7 @@ public class AgentTaskServiceInitializer : IHostedService
                     "The due date is when the task is supposed to be done by." +
                     "The iscompleted status shows if the task is done or not." +
                     "Use ToolsPlugin - 'Today' function to get the today's date, when asked or when creating a new task with due date today." +
+                    "Use ToolsPlugin - 'Clear' function to clear the chat history and context or when asked to start over or forget everything." +
                     "Use TasksSearchPlugin  - 'SearchAsync' function to search for specific task or tasks." +
                     "Use it to answer questions about tasks such as: " +
                     "- Are there tasks like <description>?" +
