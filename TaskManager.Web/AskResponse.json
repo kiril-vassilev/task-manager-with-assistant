@@ -1,0 +1,26 @@
+{
+    "Answer": "Yes, there are tasks like that.",
+    "Tasks": [
+        {
+        "Id": 1,
+        "Title": "Task 1",
+        "Description": "Description for task 1",
+        "DueDate": "2024-06-05T18:00:00.000Z",
+        "IsCompleted": false
+        },
+        {
+        "Id": 2,
+        "Title": "Task 2",
+        "Description": "Description for task 2",
+        "DueDate": "2024-06-10T18:00:00.000Z",
+        "IsCompleted": true
+        },
+        {
+        "Id": 3,
+        "Title": "Task 3",
+        "Description": "Description for task 3",
+        "DueDate": "2024-06-20T18:00:00.000Z",
+        "IsCompleted": false
+        }
+    ]
+}

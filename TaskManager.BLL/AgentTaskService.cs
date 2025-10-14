@@ -1,6 +1,8 @@
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Agents;
 using Microsoft.SemanticKernel.ChatCompletion;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using TaskManager.Domain;
 
 
@@ -43,15 +45,21 @@ public class AgentTaskService
         if (_history == null)
             throw new InvalidOperationException("History not initialized.");
 
-        var tasks = new List<TaskItem>();
+        var finalResponse = string.Empty;
+        var finalTasksResponse = new List<TaskItem>();
 
         ChatMessageContent message = new(AuthorRole.User, question);
         _history.Add(message);
 
         await foreach (var response in _agent.InvokeAsync(_history))
         {
-            var formattedResponse = FormatResponse(response);
+            var (agentTasks, agentResponse) = FormatResponse(response);
             _history.Add(response);
+
+            if (agentTasks != null && agentTasks.Any())
+                finalTasksResponse.AddRange(agentTasks);
+
+            finalResponse = agentResponse;
 
             FunctionResultContent[] functionResults = await ProcessFunctionCalls(response, _kernel).ToArrayAsync();
 
@@ -63,19 +71,19 @@ public class AgentTaskService
                 var (resultTasks, resultText) = FormatFunctionResult(functionResult);
 
                 if (resultTasks != null && resultTasks.Any())
-                    tasks.AddRange(resultTasks);
+                    finalTasksResponse.AddRange(resultTasks);
 
                 if (!string.IsNullOrEmpty(resultText))
-                    formattedResponse += $"\n{resultText}\n";
+                    finalResponse += $"\n{resultText}\n";
 
                 if ((resultTasks == null || !resultTasks.Any()) && string.IsNullOrEmpty(resultText))
-                    formattedResponse += "\nNo tasks found.\n";
+                    finalResponse += "\nNo tasks found.\n";
             }
 
             return new AskResponse
             {
-                Answer = formattedResponse,
-                Tasks = tasks
+                Answer = finalResponse,
+                Tasks = finalTasksResponse
             };
         }
 
@@ -90,23 +98,51 @@ public class AgentTaskService
         }
     }    
 
-    private string FormatResponse(ChatMessageContent response)
+    private (IEnumerable<TaskItem>, string) FormatResponse(ChatMessageContent response)
     {
-        string ret = "";
+        string res = "";
+        var tasks = new List<TaskItem>();
 
         foreach (var item in response.Items)
         {
             if (item is TextContent text)
             {
-                ret += $"  [{item.GetType().Name}] {text.Text}\n";
+                var textValue = text.Text?.Trim();
+
+                // Quick check for JSON-ish content and attempt to parse into AskResponse
+                if (!string.IsNullOrEmpty(textValue) && (textValue.StartsWith("{") || textValue.StartsWith("[")))
+                {
+                    try
+                    {
+                        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                        var jsonResponse = JsonSerializer.Deserialize<AskResponse>(textValue, options);
+                        if (jsonResponse != null)
+                        {
+                            // Include the answer and list items in a concise form
+                            res += $"  [{item.GetType().Name}] {jsonResponse.Answer}\n";
+
+                            if (jsonResponse.Tasks != null && jsonResponse.Tasks.Any())
+                                tasks.AddRange(jsonResponse.Tasks);
+
+                            continue; // Skip the fallback 
+                        }
+                    }
+                    catch 
+                    {
+                        // Do nothing so we can fallback to normal text addition
+                    }
+                }
+
+                // Fallback to normal text addition
+                res += $"  [{item.GetType().Name}] {text.Text}\n";
             }
             else if (item is FunctionCallContent functionCall)
             {
-                ret += $"  [{item.GetType().Name}] {functionCall.Id}\n";
+                res += $"  [{item.GetType().Name}] [{functionCall.FunctionName}]\n";
             }
         }
 
-        return ret;
+        return (tasks, res);
     }
 
     private (IEnumerable<TaskItem>?, string) FormatFunctionResult(FunctionResultContent functionResult)

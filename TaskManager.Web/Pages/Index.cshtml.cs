@@ -96,10 +96,10 @@ public class IndexModel : PageModel
 
         ChatbotAnswer = askResponse?.Answer;
 
-        // Refresh the list of tasks after chatbot interaction: prefer tasks from response if present
+        // Refresh the list of tasks after chatbot interaction
         Tasks = (askResponse?.Tasks != null && askResponse.Tasks.Count > 0)
             ? askResponse.Tasks
-            : await _http.GetFromJsonAsync<List<TaskItem>>("/api/tasks") ?? new List<TaskItem>();
+            : new List<TaskItem>(); //  await _http.GetFromJsonAsync<List<TaskItem>>("/api/tasks") ?? new List<TaskItem>();
 
         return new JsonResult(new { answer = ChatbotAnswer, tasks = Tasks });
     }
