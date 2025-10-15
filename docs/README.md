@@ -1,4 +1,7 @@
-# TaskManager
+# Task Manager
+
+![alt text](../Documents/tools-forget-about-it.jpg)
+
 
 A minimal .NET 8 sample with **clear layers** in one solution:
 - `TaskManager.Domain` (Entities/DTOs)
