@@ -1,6 +1,6 @@
 # Task Manager
 
-![alt text](../Documents/tools-forget-about-it.jpg)
+![Task Manager](./task-manager.jpg)
 
 
 A minimal .NET 8 sample with **clear layers** in one solution:

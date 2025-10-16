@@ -1,3 +1,4 @@
 theme: jekyll-theme-slate
 title: Task Manager with an Assistant!
 description: Bookmark this to keep an eye on my project updates!
+show_downloads: [true]
