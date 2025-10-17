@@ -110,7 +110,7 @@ public class AgentTaskService
                 var textValue = text.Text?.Trim();
 
                 // Quick check for JSON-ish content and attempt to parse into AskResponse
-                if (!string.IsNullOrEmpty(textValue) && (textValue.StartsWith("{") || textValue.StartsWith("[")))
+                if (!string.IsNullOrEmpty(textValue) && (textValue.StartsWith("{") || textValue.StartsWith("[") || textValue.StartsWith("json")))
                 {
                     try
                     {
