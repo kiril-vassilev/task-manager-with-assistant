@@ -182,7 +182,7 @@ I want to add a Users domain. A user can be assigned a task and will have differ
 
 ## Testing
 
-Testing a chatbot is a challenge - especially if you want to automate it. Mostly because the answers are not black-and-white as in a traditional software system. I mean, you cannot simply **Assert.Equal(42, the_meaning_of_life_the_universe_and_everything)**. 
+Testing a chatbot is a challenge - especially if you want to automate it. Mostly because the answers are not *black-and-white* as in a traditional software system. I mean, you cannot simply **Assert.Equal(42, the_meaning_of_life_the_universe_and_everything)**. 
 I want to experiment with a dedicated agent which checks and validates the chatbot answers.
 
 ## Security
