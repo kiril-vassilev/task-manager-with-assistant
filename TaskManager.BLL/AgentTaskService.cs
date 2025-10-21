@@ -31,7 +31,10 @@ public class AgentTaskService
 
     public void CreateClearHistory()
     {
-        _history = new ChatHistory();
+        _history =
+        [
+            new ChatMessageContent(AuthorRole.Assistant, "Today is " + DateTime.UtcNow.Date.ToShortDateString()),
+        ];
     }
 
     public async Task<AskResponse> AskQuestionAsync(string question)
@@ -45,7 +48,6 @@ public class AgentTaskService
         if (_history == null)
             throw new InvalidOperationException("History not initialized.");
 
-        var finalResponse = string.Empty;
         var finalTasksResponse = new List<TaskItem>();
 
         ChatMessageContent message = new(AuthorRole.User, question);
@@ -59,7 +61,7 @@ public class AgentTaskService
             if (agentTasks != null && agentTasks.Any())
                 finalTasksResponse.AddRange(agentTasks);
 
-            finalResponse = agentResponse;
+            string? finalResponse = agentResponse;
 
             FunctionResultContent[] functionResults = await ProcessFunctionCalls(response, _kernel).ToArrayAsync();
 

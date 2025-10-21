@@ -29,7 +29,7 @@ public sealed class TaskServicePlugin
         return Task.FromResult(taskService.GetTasks(filterCompleted, filterByDueDate));
     }
 
-    [KernelFunction, Description("Creates a new task. Ask the user for title, description, and due date in the future.")]
+    [KernelFunction, Description("Creates a new task. Ask the user for title, description, and due date in the future or today.")]
     public Task<TaskItem> CreateAsync(TaskItem task)
     {
         using var scope = _serviceProvider.CreateScope();

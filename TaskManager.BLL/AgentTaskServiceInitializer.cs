@@ -63,7 +63,7 @@ public class AgentTaskServiceInitializer : IHostedService
                     "The description describes what the task is for and what the user is supposed to do." +
                     "The due date is when the task is supposed to be done by." +
                     "The iscompleted status shows if the task is done or not." +
-                    "Use ToolsPlugin - 'Today' function to get the today's date, when asked or when creating a new task with due date today." +
+                    "Use ToolsPlugin - 'Today' function to get the today's date." +
                     "Use ToolsPlugin - 'Clear' function to clear the chat history and context or when asked to start over or forget everything." +
                     "Use TasksSearchPlugin  - 'SearchAsync' function to search for specific task or tasks." +
                     "Use it to answer questions about tasks such as: " +
