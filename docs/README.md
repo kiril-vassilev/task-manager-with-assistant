@@ -68,7 +68,7 @@ While working on the system, I once asked the assistant to create a new task due
 
 The issue hadn’t come up earlier because, for simplicity, all date filters were implemented to search for tasks due in the past, today, or in the future. Since those checks are handled by the system’s internal tools, they don’t require the assistant to actually know today’s date. Similarly, the **create new task** tool already knows whether the due date is in the future or not.
 
-In the end, I gave the assistant a tool to check today’s date — which, of course, can also be used by the user:
+In the end, I made the chat history begin with today’s date, so the assistant always ‘knows’. I also added a tool that lets it check the current date — just in case — and yes, the user can use it too:
 
 -   What date is today?
 
@@ -131,7 +131,7 @@ Give clear, unambiguous, and *as-specific-as-possible* instructions — and plea
     "The description describes what the task is for and what the user is supposed to do." +
     "The due date is when the task is supposed to be done by." +
     "The iscompleted status shows if the task is done or not." +
-    "Use ToolsPlugin - 'Today' function to get the today's date, when asked or when creating a new task with due date today." +
+    "Use ToolsPlugin - 'Today' function to get the today's date." +
     "Use ToolsPlugin - 'Clear' function to clear the chat history and context or when asked to start over or forget everything." +
     "Use TasksSearchPlugin  - 'SearchAsync' function to search for specific task or tasks." +
     "Use it to answer questions about tasks such as: " +
@@ -164,11 +164,15 @@ Generally, the system is developed using Microsoft techologies:
 -   GitHub
 -   Gpt-4o
 -   Text-embeding-3-large
--   Semantic  Kernel
+-   Semantic Kernel
 
 # Next steps
 
 As I said a couple of times, there are plenty of things to improve. 
+
+## Upgrade from Sematic Kernel to Agent Framework
+
+Apparently, Microsoft has [decided](https://learn.microsoft.com/en-us/agent-framework/overview/agent-framework-overview) to combine both [AutoGen](https://github.com/microsoft/autogen) and [Semantic Kernel](https://github.com/microsoft/semantic-kernel) into one — the [Agent Framework](https://github.com/microsoft/agent-framework)(I guess they ran out of names). Overall, it looks cleaner and seems to combine the best of both worlds, but I really hope there’s more to it.
 
 ## Improving the filters to use any date
 
