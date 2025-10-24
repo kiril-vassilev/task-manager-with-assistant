@@ -67,8 +67,9 @@ public class AgentTaskService
 
             foreach (var functionResult in functionResults)
             {
-                var chatMessage = functionResult.ToChatMessage();
-                _history.Add(chatMessage);
+                // We don't want to add Clear function call to the the just emptied history
+                if (functionResult.FunctionName != "Clear")
+                    _history.Add(functionResult.ToChatMessage());
 
                 var (resultTasks, resultText) = FormatFunctionResult(functionResult);
 
