@@ -1,14 +1,5 @@
-using Microsoft.SemanticKernel;
 using System.ComponentModel;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using TaskManager.Domain;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.AI;
-using Microsoft.SemanticKernel.Connectors.InMemory;
-using Microsoft.SemanticKernel.Data;
-using System.Linq.Expressions;
-using System.Linq;
 
 namespace TaskManager.BLL;
 
@@ -21,7 +12,7 @@ public sealed class TaskSearchPlugin
         _taskSearchService = taskSearchService;
     }
 
-    [KernelFunction, Description(
+    [Description(
     "Search through tasks description for specific task or tasks. " +
     "Use <filterCompleted> to filter by completion status. " +
     "0 - no filter, 1 - only not completed, 2 - only completed. " +
