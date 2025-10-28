@@ -44,10 +44,12 @@ public class AgentTaskService
 
         if (IS_DEBUG)
         {
+#pragma warning disable CS0162 // Unreachable code detected
             foreach (var message in response.Messages)
             {
                 finalAnswer += FormatMessage(message);
             }
+#pragma warning restore CS0162 // Unreachable code detected
         }
 
         finalAnswer += response.Result.Answer;

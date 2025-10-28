@@ -1,4 +1,3 @@
-using Microsoft.SemanticKernel;
 using System.ComponentModel;
 
 namespace TaskManager.BLL;
