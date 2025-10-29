@@ -1,15 +1,12 @@
 using Microsoft.Extensions.Hosting;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.Agents;
+
+using Microsoft.Extensions.AI;
+using Microsoft.Agents.AI;
+
 using Microsoft.Extensions.DependencyInjection;
 using Azure.AI.OpenAI;
 using Azure.Identity;
-using Microsoft.Extensions.AI;
-using Microsoft.SemanticKernel.Connectors.InMemory;
-using Microsoft.SemanticKernel.Data;
-using Microsoft.SemanticKernel.ChatCompletion;
+using OpenAI;
 
 namespace TaskManager.BLL;
 
@@ -29,13 +26,43 @@ public class AgentTaskServiceInitializer : IHostedService
         _taskSearchService = taskSearchService;
     }
 
+    private string GetAgentInstructions() => 
+        "You are a helpful assistant that manages tasks " +
+        "and answer the user's questions about how to use the system using the manual. " +
+        "Each task has a title, description, due date, and iscompleted status." +
+        "The title is not descriptive for the task." +
+        "The description describes what the task is for and what the user is supposed to do." +
+        "The due date is when the task is supposed to be done by." +
+        "The iscompleted status shows if the task is done or not." +
+        "Use ToolsPlugin - 'Today' function to get the today's date." +
+        "Use ToolsPlugin - 'Clear' function to clear the chat history and context or when asked to start over or forget everything." +
+        "Use TasksSearchPlugin  - 'SearchAsync' function to search for specific task or tasks." +
+        "Use it to answer questions about tasks such as: " +
+        "- Are there tasks like <description>?" +
+        "- Do I have to do something like <description>?" +
+        "- Do I have to do something like <description>? which is overdue and not completed?" +
+        "- Get me all tasks that are like <description> and are overdue and completed." +
+        "Use TaskServicePlugin to get all tasks, get a task by title, mark a task as complete. " +
+        "Use TaskServicePlugin - 'GetAllTasks' function to answer questions about tasks such as: " +
+        "- Are there any tasks due today?" +
+        "- Are there any overdue tasks?" +
+        "- Do I have any tasks that are not completed?" +
+        "- Do I have any tasks that are overdue and not completed?" +
+        "- Get me all overdue tasks." +
+        "- Get me all tasks that are overdue and not completed." +
+        "Use TaskServicePlugin to delete a task (Make sure to confirm with the user before deleting), " +
+        "or to create a new one. " +
+        "ALWAYS answer in this format: " +
+        ReadFileResource("AskResponse.json") +
+        "This is the Task Manager Manual for reference: " +
+        ReadFileResource("Manual.txt");
+    
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         using (var scope = _serviceProvider.CreateAsyncScope())
         {
-            var kernel = CreateKernel();
-            var toolsPlugin = KernelPluginFactory.CreateFromObject(new ToolsPlugin(_agentTaskService));
+            var toolsPlugin = new ToolsPlugin(_agentTaskService);
 
             // Create the embeding generator and initialize the TaskSearchService
             var embeddingGenerator = CreateEmbeddingGenerator();
@@ -45,56 +72,31 @@ public class AgentTaskServiceInitializer : IHostedService
             var tasks = scope.ServiceProvider.GetRequiredService<ITaskService>().GetTasks();
             await _taskSearchService.AddVectorStoreTasksEntries(tasks);
 
-            var taskServicePlugin = KernelPluginFactory.CreateFromObject(new TaskServicePlugin(_serviceProvider));
-            var textSearchPlugin = KernelPluginFactory.CreateFromObject(new TaskSearchPlugin(_taskSearchService));
+            var taskServicePlugin = new TaskServicePlugin(_serviceProvider);
+            var taskSearchPlugin = new TaskSearchPlugin(_taskSearchService);
 
-            kernel.Plugins.Add(toolsPlugin);
-            kernel.Plugins.Add(taskServicePlugin);
-            kernel.Plugins.Add(textSearchPlugin);
+            var client = CreateChatClient();
 
-            ChatCompletionAgent agent =
-                new()
-                {
-                    Instructions =
-                    "You are a helpful assistant that manages tasks " +
-                    "and answer the user's questions about how to use the system using the manual. " +
-                    "Each task has a title, description, due date, and iscompleted status." +
-                    "The title is not descriptive for the task." +
-                    "The description describes what the task is for and what the user is supposed to do." +
-                    "The due date is when the task is supposed to be done by." +
-                    "The iscompleted status shows if the task is done or not." +
-                    "Use ToolsPlugin - 'Today' function to get the today's date." +
-                    "Use ToolsPlugin - 'Clear' function to clear the chat history and context or when asked to start over or forget everything." +
-                    "Use TasksSearchPlugin  - 'SearchAsync' function to search for specific task or tasks." +
-                    "Use it to answer questions about tasks such as: " +
-                    "- Are there tasks like <description>?" +
-                    "- Do I have to do something like <description>?" +
-                    "- Do I have to do something like <description>? which is overdue and not completed?" +
-                    "- Get me all tasks that are like <description> and are overdue and completed." +
-                    "Use TaskServicePlugin to get all tasks, get a task by title, mark a task as complete, " +
-                    "Use TaskServicePlugin - 'GetAllTasks' function to answer questions about tasks such as: " +
-                    "- Are there any tasks due today?" +
-                    "- Are there any overdue tasks?" +
-                    "- Do I have any tasks that are not completed?" +
-                    "- Do I have any tasks that are overdue and not completed?" +
-                    "- Get me all overdue tasks." +
-                    "- Get me all tasks that are overdue and not completed." +
-                    "Use TaskServicePlugin to delete a task (Make sure to confirm with the user before deleting), " +
-                    "or to create a new one. " +
-                    "Always answer in this format: " +
-                    ReadFileResource("AskResponse.json") +
-                    "This is the Task Manager Manual for reference: " +
-                    ReadFileResource("Manual.txt"),
-                    Name = "TaskManagerAgent",
-                    Kernel = kernel,
-                    Arguments = new KernelArguments(new PromptExecutionSettings() { FunctionChoiceBehavior = FunctionChoiceBehavior.Auto(autoInvoke: false) }),
-                };
+            ChatClientAgent agent = client.CreateAIAgent(
+                instructions: GetAgentInstructions(),
+                name: "TaskManagerAgent",
+                tools: [
+                    AIFunctionFactory.Create(toolsPlugin.Today),
+                    AIFunctionFactory.Create(toolsPlugin.Clear),
+                    AIFunctionFactory.Create(taskServicePlugin.GetTasksAsync),
+                    AIFunctionFactory.Create(taskServicePlugin.CreateAsync),
+                    AIFunctionFactory.Create(taskServicePlugin.FindByNameAsync),
+                    AIFunctionFactory.Create(taskServicePlugin.MarkCompleteAsync),
+                    AIFunctionFactory.Create(taskServicePlugin.DeleteAsync),
+                    AIFunctionFactory.Create(taskSearchPlugin.SearchAsync)
+                ]);
 
-            _agentTaskService.Initialize(kernel, agent);
+            _agentTaskService.Initialize(agent);
         }
         await Task.CompletedTask;
     }
-    
+
+
     // Read a file from the base directory. 
     private string ReadFileResource(string fileName)
     {
@@ -116,18 +118,14 @@ public class AgentTaskServiceInitializer : IHostedService
         return client;
     }
 
-    private Kernel CreateKernel()
+        private static OpenAI.Chat.ChatClient CreateChatClient()
     {
-        var builder = Kernel.CreateBuilder();
-
-        builder.AddAzureOpenAIChatCompletion(
-            TaskManagerConfiguration.AzureOpenAI.DeploymentName,
-            TaskManagerConfiguration.AzureOpenAI.Endpoint,
-            TaskManagerConfiguration.AzureOpenAI.ApiKey
-        );
-
-        return builder.Build();
+        return new AzureOpenAIClient(
+            new Uri(TaskManagerConfiguration.AzureOpenAI.Endpoint),
+            new System.ClientModel.ApiKeyCredential(TaskManagerConfiguration.AzureOpenAI.ApiKey))
+            .GetChatClient(TaskManagerConfiguration.AzureOpenAI.DeploymentName);
     }
+
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask; // kill the agent
 }

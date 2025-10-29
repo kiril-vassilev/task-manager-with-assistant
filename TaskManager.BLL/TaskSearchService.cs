@@ -1,10 +1,7 @@
 using Microsoft.Extensions.AI;
 using Microsoft.SemanticKernel.Connectors.InMemory;
-using Microsoft.SemanticKernel.Data;
-using Microsoft.Extensions.DependencyInjection;
 using TaskManager.Domain;
 using System.Linq.Expressions;
-using System.Linq;
 
 
 namespace TaskManager.BLL;

@@ -1,4 +1,3 @@
-using Microsoft.SemanticKernel;
 using System.ComponentModel;
 
 namespace TaskManager.BLL;
@@ -12,14 +11,14 @@ public sealed class ToolsPlugin
         _agentTaskService = agentTaskService;
     }
 
-    [KernelFunction, Description("It returns today's date.")]
+    [Description("It returns today's date.")]
     public String Today() => DateTime.UtcNow.Date.ToShortDateString();
 
-    [KernelFunction, Description("It clears the chat history and the context.")]
+    [Description("It clears the chat history and the context.")]
     public string Clear()
     {
         _agentTaskService.CreateClearHistory();
-        return "Hello! How can I help you?";
+        return "The history and context have been cleared.";
     }
 }
     
