@@ -1,4 +1,7 @@
-# Migrating from Semantic Kernel to Agent Framework
+---
+layout: default
+title: "Migrating from Semantic Kernel to Agent Framework"
+---
 ![agent-framework](agent-framework.png)
 
 Usually, I’m skeptical about using the latest tech for no real reason — but this time, it’s worth it.
