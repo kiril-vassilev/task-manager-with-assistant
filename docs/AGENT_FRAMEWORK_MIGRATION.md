@@ -44,4 +44,4 @@ For example, you can still use the familiar **InMemoryVectorStore**, so migratio
 The **Agent Framework** is truly the **next iteration** of Semantic Kernel — more efficient, cleaner, and just better overall.  
 If you’re already using SK, I highly recommend migrating.
 
-Feel free to check out the [Pull Request](https://github.com/kiril-vassilev/task-manager-with-assistant/tree/migrate-to-agent-framework) for the migration details.
+Feel free to check out the [Pull Request](https://github.com/kiril-vassilev/task-manager-with-assistant/pull/2) for the migration details.
