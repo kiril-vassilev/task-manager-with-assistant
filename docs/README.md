@@ -174,6 +174,9 @@ As I said a couple of times, there are plenty of things to improve.
 
 Apparently, Microsoft has [decided](https://learn.microsoft.com/en-us/agent-framework/overview/agent-framework-overview) to combine both [AutoGen](https://github.com/microsoft/autogen) and [Semantic Kernel](https://github.com/microsoft/semantic-kernel) into one — the [Agent Framework](https://github.com/microsoft/agent-framework)(I guess they ran out of names). Overall, it looks cleaner and seems to combine the best of both worlds, but I really hope there’s more to it.
 
+For more details on my experience and migration steps, check out
+<a href="AGENT_FRAMEWORK_MIGRATION.md" target="_blank">Migrating from Semantic Kernel to Agent Framework</a>.
+
 ## Improving the filters to use any date
 
 The date filters for both **Search** and **GetAllTasks** support: 

@@ -42,7 +42,7 @@ public class AgentTaskServiceInitializer : IHostedService
         "- Do I have to do something like <description>?" +
         "- Do I have to do something like <description>? which is overdue and not completed?" +
         "- Get me all tasks that are like <description> and are overdue and completed." +
-        "Use TaskServicePlugin to get all tasks, get a task by title, mark a task as complete, " +
+        "Use TaskServicePlugin to get all tasks, get a task by title, mark a task as complete. " +
         "Use TaskServicePlugin - 'GetAllTasks' function to answer questions about tasks such as: " +
         "- Are there any tasks due today?" +
         "- Are there any overdue tasks?" +
