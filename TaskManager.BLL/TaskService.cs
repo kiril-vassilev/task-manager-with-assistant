@@ -1,5 +1,6 @@
 using TaskManager.DAL;
 using TaskManager.Domain;
+using TaskManager.BLL.Search;
 
 namespace TaskManager.BLL;
 

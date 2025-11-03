@@ -138,12 +138,16 @@
     function refreshTaskList(tasks) {
         const ul = document.querySelector('ul');
         if (!ul) return;
+
+        // Get the anti-forgery token from existing form
+        const antiForgeryToken = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
         ul.innerHTML = '';
         for (const t of tasks) {
             const li = document.createElement('li');
             let html = `<span><strong>${t.title}</strong> - ${t.description} - ${dateFmt.format(new Date(t.dueDate))} - ${(t.isCompleted ? "✅" : "❌")}</span>`;
             if (!t.isCompleted) {
-                html += `<form method='post'><input type='hidden' name='Id' value='${t.id}' /><button type='submit'>Complete</button></form>`;
+                html += `<form method='post'><input type='hidden' name='__RequestVerificationToken' value='${antiForgeryToken}' /><input type='hidden' name='Id' value='${t.id}' /><button type='submit'>Complete</button></form>`;
             }
             li.innerHTML = html;
             ul.appendChild(li);

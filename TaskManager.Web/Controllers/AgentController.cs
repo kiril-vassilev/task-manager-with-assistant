@@ -1,6 +1,9 @@
+using Microsoft.Agents.AI.Workflows;
 using Microsoft.AspNetCore.Mvc;
 using TaskManager.BLL;
+using TaskManager.BLL.Orchestration;
 using TaskManager.Domain;
+
 
 namespace TaskManager.Web.Controllers;
 
@@ -8,8 +11,8 @@ namespace TaskManager.Web.Controllers;
 [Route("api/[controller]")]
 public class AgentController : ControllerBase
 {
-    private readonly AgentTaskService _agentService;
-    public AgentController(AgentTaskService agentService) => _agentService = agentService;
+    private readonly AgentService _agentService;
+    public AgentController(AgentService agentService) => _agentService = agentService;
 
     [HttpPost("ask")]
     public async Task<ActionResult<AskResponse>> Ask([FromBody] AskRequest request)

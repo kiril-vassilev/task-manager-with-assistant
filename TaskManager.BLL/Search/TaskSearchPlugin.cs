@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using TaskManager.Domain;
 
-namespace TaskManager.BLL;
+namespace TaskManager.BLL.Search;
 
 public sealed class TaskSearchPlugin
 {

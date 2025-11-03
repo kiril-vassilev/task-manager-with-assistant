@@ -6,6 +6,9 @@ namespace TaskManager.BLL;
 
 public sealed class TaskManagerConfiguration
 {
+    public static readonly bool showAgentThinking = true;
+    public static readonly string defaultWorkflowMessageScope = "default";
+
     private readonly IConfigurationRoot _configRoot;
     private static TaskManagerConfiguration? s_instance;
 

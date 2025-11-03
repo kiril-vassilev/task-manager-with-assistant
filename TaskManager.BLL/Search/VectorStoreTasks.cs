@@ -1,7 +1,6 @@
 using Microsoft.Extensions.VectorData;
 
-
-namespace TaskManager.BLL
+namespace TaskManager.BLL.Search
 {
     public sealed class VectorStoreTasks
     {
