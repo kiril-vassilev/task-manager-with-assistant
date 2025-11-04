@@ -95,6 +95,8 @@ a:hover {
     right: 24px;
     width: 520px;
     max-width: 90vw;
+    min-height: 280px;
+    max-height: 80vh;
     background: #fff;
     border: 1px solid #ccc;
     border-radius: 12px 12px 0 12px;
@@ -103,7 +105,9 @@ a:hover {
     display: none;
     flex-direction: column;
     overflow: hidden;
+    resize: vertical;
 }
+
 #chatbot-header {
     background: #0078d4;
     color: #fff;
@@ -113,19 +117,26 @@ a:hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-shrink: 0;
 }
+
 #chatbot-messages {
+    flex: 1; /* This makes it grow with the popup */
     padding: 12px;
-    height: 200px;
     overflow-y: auto;
     font-size: 0.95em;
     background: #f9f9f9;
     scrollbar-width: thin;
     scrollbar-color: #0078d4 #f4f8fb;
+    box-sizing: border-box;
+    min-height: 150px; /* Minimum height to prevent it from getting too small */
 }
+
 #chatbot-input-area {
     display: flex;
     border-top: 1px solid #eee;
+    background: #fff;
+    flex-shrink: 0;
 }
 #chatbot-input {
     flex: 1;

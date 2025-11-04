@@ -1,6 +1,11 @@
 
 ![Task Manager pciture](./task-manager.jpg)
 
+- Migrating to Agent Framework]({{ '/AGENT_FRAMEWORK_MIGRATION' | relative_url }})
+- Implementing a Safeguard with an Agent]({{ '/SAFEGUARD_AGENT' | relative_url }})
+
+# Introduction
+
 This is a simple example of a system that manages your tasks (**Title**, **Description**, **Due Date**, and **Is-Completed** flag) with a built-in chatbot. There’s also a human interface (a.k.a. UI — the usual buttons and fields where you can enter tasks), but the idea is to use the chatbot for everything except presenting the tasks. In other words, the goal is to be *user-interface-less* — that’s the future, isn’t it?
 
 The chatbot (along with the current chat history) can be opened using the button in the bottom-left corner — as usual. It’s worth mentioning the **Clear** button, which starts a new multi-turn conversation by wiping the current one. This can be useful, since the assistant gets a little ‘smarter’ with every turn — and you might not always want that. It ‘remembers’ what you’ve asked for, and if you request the same or similar data again, it might skip using the system tools and instead reply from the chat history. You can also type `Clear`, or — if you’ve watched too many movies — `Forget about it`.

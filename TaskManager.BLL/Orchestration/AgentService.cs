@@ -35,6 +35,17 @@ public class AgentService
         // _workflow = new WorkflowBuilder(_workerExecutor)
         //     .WithOutputFrom(_workerExecutor)
         //     .Build();
+
+        // Uncomment to visualize the workflow
+        //
+        // var mermaid = _workflow.ToMermaidString();
+        // var dot = _workflow.ToDotString();
+        // Console.WriteLine("======= Workflow Visualization =======");
+        // Console.WriteLine("======= Workflow (Mermaid) =======");
+        // Console.WriteLine(mermaid);
+        // Console.WriteLine("======= Workflow (DOT) =======");
+        // Console.WriteLine(dot);
+        // Console.WriteLine("======= Workflow Visualization =======");
     }
     
     public async Task<AskResponse> AskQuestionAsync(string question)
