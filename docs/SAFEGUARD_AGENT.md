@@ -4,7 +4,7 @@ title: "Implementing a Safeguard with an Agent"
 ---
 ![task-manager-with-gardian](task-manager-with-gardian.jpg)
 
-- [Task Manager with an Assistant]({{ '/README' | relative_url }})
+- [Task Manager with an Assistant]({{ '/.' | relative_url }})
 
 
 Securing a software system is important, and fortunately, there are traditional methods and patterns for doing it. You get authenticated (you know — using blood, a piece of skin, aye, retina scan, fingerprint, or simply a password), then you get authorized — what you are allowed to do.
@@ -23,7 +23,7 @@ The current user (with all their authorized rights) is in the system’s current
 
 For more complex systems, it’s best to use dedicated tools (like [like NVIDIA NeMo Guardrails](https://docs.nvidia.com/nemo-guardrails/index.html)). In my case, I decided to put a police agent — a guardian — at the front door, with the sole purpose of protecting the care-free worker.
 
-![worflow-diagram](workflow-diagram5.jpg)
+            ![worflow-diagram](workflow-diagram5.jpg)
 
 ## Testing the Guardian
 
