@@ -4,7 +4,7 @@ title: "Migrating from Semantic Kernel to Agent Framework"
 ---
 ![agent-framework](agent-framework.png)
 
-- [Task Manager with an Assistant]({{ '/README' | relative_url }})
+- [Task Manager with an Assistant]({{ '/.' | relative_url }})
 
 
 Usually, I’m skeptical about using the latest tech for no real reason — but this time, it’s worth it.
