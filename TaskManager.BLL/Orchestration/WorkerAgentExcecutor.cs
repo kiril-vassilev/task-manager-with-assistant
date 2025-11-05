@@ -1,23 +1,17 @@
-using Microsoft.Extensions.AI;
 using Microsoft.Agents.AI;
-
+using Microsoft.Agents.AI.Workflows;
+using Microsoft.Extensions.AI;
 using TaskManager.Domain;
 
-namespace TaskManager.BLL;
+namespace TaskManager.BLL.Orchestration;
 
-public class AgentTaskService
+public class WorkerAgentExecutor : Executor<ChatMessage, AskResponse>
 {
-    private ChatClientAgent? _agent;
+
+    private readonly ChatClientAgent? _agent;
     private AgentThread? _thread;
 
-    private const bool IS_DEBUG = false;
-
-    public AgentTaskService()
-    {
-        // Empty constructor for DI
-    }
-
-    public void Initialize(ChatClientAgent agent)
+    public WorkerAgentExecutor(ChatClientAgent agent): base("WorkerAgentExecutor")
     {
         _agent = agent;
         CreateClearHistory();
@@ -30,27 +24,21 @@ public class AgentTaskService
 
         _thread = _agent.GetNewThread();
     }
-
-    public async Task<AskResponse> AskQuestionAsync(string question)
+    public override async ValueTask<AskResponse> HandleAsync(ChatMessage message, IWorkflowContext context, CancellationToken cancellationToken = default)
     {
         if (_agent == null)
-            throw new InvalidOperationException("Agent not initialized.");
+            throw new InvalidOperationException("WorkerAgentExecutor is not initialized with an ChatClientAgent.");
 
         if (_thread == null)
-            throw new InvalidOperationException("Thread not initialized.");
+            throw new InvalidOperationException("WorkerAgentExecutor is not initialized with an AgentThread.");
+
 
         var finalAnswer = String.Empty;
-        var response = await _agent.RunAsync<AskResponse>(question, _thread);
+        var response = await _agent.RunAsync<AskResponse>(message.Text, _thread, cancellationToken: cancellationToken);
 
-        if (IS_DEBUG)
-        {
-#pragma warning disable CS0162 // Unreachable code detected
-            foreach (var message in response.Messages)
-            {
-                finalAnswer += FormatMessage(message);
-            }
-#pragma warning restore CS0162 // Unreachable code detected
-        }
+        if (TaskManagerConfiguration.showAgentThinking)
+            foreach (var msg in response.Messages)
+                finalAnswer += FormatMessage(msg);
 
         finalAnswer += response.Result.Answer;
 
@@ -90,5 +78,5 @@ public class AgentTaskService
             return "none";
 
         return input.Length > 30 ? input.Substring(0, 30) + "..." : input;
-    }
+    }    
 }

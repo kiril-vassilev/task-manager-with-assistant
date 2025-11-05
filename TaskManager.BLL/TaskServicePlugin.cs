@@ -8,10 +8,7 @@ public sealed class TaskServicePlugin
 {
     private readonly IServiceProvider _serviceProvider;
 
-    public TaskServicePlugin(IServiceProvider serviceProvider)
-    {
-        _serviceProvider = serviceProvider;
-    }
+    public TaskServicePlugin(IServiceProvider serviceProvider) => _serviceProvider = serviceProvider;
 
     [Description("Provides a list of tasks." +
         "Use <filterCompleted> to filter by completion status. " +
@@ -26,7 +23,6 @@ public sealed class TaskServicePlugin
         return Task.FromResult(taskService.GetTasks(filterCompleted, filterByDueDate));
     }
 
-    [Description("Creates a new task. Ask the user for title, description, and due date in the future or today.")]
     public Task<TaskItem> CreateAsync(TaskItem task)
     {
         using var scope = _serviceProvider.CreateScope();
@@ -34,7 +30,6 @@ public sealed class TaskServicePlugin
         return Task.FromResult(taskService.Create(task));
     }
 
-    [Description("Finds a task by title. Do not use it for searching by description or other fields.")]
     public Task<TaskItem?> FindByNameAsync(string title)
     {
         using var scope = _serviceProvider.CreateScope();
@@ -42,7 +37,6 @@ public sealed class TaskServicePlugin
         return Task.FromResult(taskService.FindByTitle(title));
     }
 
-    [Description("Marks a task as complete.")]
     public Task<TaskItem?> MarkCompleteAsync(string title)
     {
         using var scope = _serviceProvider.CreateScope();
@@ -57,7 +51,6 @@ public sealed class TaskServicePlugin
         return Task.FromResult<TaskItem?>(task);
     }
 
-    [Description("Deletes a task. Do not check if the task exists. Make sure to confirm with the user before deleting.")]
     public Task<string> DeleteAsync(string title)
     {
         using var scope = _serviceProvider.CreateScope();

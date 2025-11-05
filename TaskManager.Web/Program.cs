@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TaskManager.BLL;
+using TaskManager.BLL.Orchestration;
+using TaskManager.BLL.Search;
 using TaskManager.DAL;
 using TaskManager.Domain;
 
@@ -29,11 +31,11 @@ builder.Services.AddScoped<ITaskService, TaskService>();
 // Register TaskSearchService as singleton
 builder.Services.AddSingleton<TaskSearchService>();
 
-// Register AgentTaskService as singleton
-builder.Services.AddSingleton<AgentTaskService>();
+// Register AgentService as singleton
+builder.Services.AddSingleton<AgentService>();
 
 // Register the hosted service for async initialization
-builder.Services.AddHostedService<AgentTaskServiceInitializer>();
+builder.Services.AddHostedService<AgentServiceInitializer>();
 
 
 // Register a named HttpClient for the Razor Pages UI

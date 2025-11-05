@@ -4,7 +4,7 @@ using TaskManager.Domain;
 using System.Linq.Expressions;
 
 
-namespace TaskManager.BLL;
+namespace TaskManager.BLL.Search;
 
 
 public class TaskSearchService
