@@ -1,8 +1,8 @@
 
 ![Task Manager pciture](./task-manager.jpg)
 
-- Migrating to Agent Framework]({{ '/AGENT_FRAMEWORK_MIGRATION' | relative_url }})
-- Implementing a Safeguard with an Agent]({{ '/SAFEGUARD_AGENT' | relative_url }})
+- [Migrating to Agent Framework]({{ '/AGENT_FRAMEWORK_MIGRATION' | relative_url }})
+- [Implementing a Safeguard with an Agent]({{ '/SAFEGUARD_AGENT' | relative_url }})
 
 # Introduction
 
