@@ -23,7 +23,9 @@ The current user (with all their authorized rights) is in the system’s current
 
 For more complex systems, it’s best to use dedicated tools (like [like NVIDIA NeMo Guardrails](https://docs.nvidia.com/nemo-guardrails/index.html)). In my case, I decided to put a police agent — a guardian — at the front door, with the sole purpose of protecting the care-free worker.
 
-            ![worflow-diagram](workflow-diagram5.jpg)
+<p align="center">
+  <img src="workflow-diagram5.jpg" alt="workflow-diagram" width="600">
+</p>
 
 ## Testing the Guardian
 
