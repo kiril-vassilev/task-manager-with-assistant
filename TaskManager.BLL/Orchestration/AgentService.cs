@@ -38,12 +38,12 @@ public class AgentService
 
         // Uncomment to visualize the workflow
         //
-        // var mermaid = _workflow.ToMermaidString();
-        // var dot = _workflow.ToDotString();
         // Console.WriteLine("======= Workflow Visualization =======");
         // Console.WriteLine("======= Workflow (Mermaid) =======");
+        // var mermaid = _workflow.ToMermaidString();
         // Console.WriteLine(mermaid);
         // Console.WriteLine("======= Workflow (DOT) =======");
+        // var dot = _workflow.ToDotString();
         // Console.WriteLine(dot);
         // Console.WriteLine("======= Workflow Visualization =======");
     }
