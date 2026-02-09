@@ -9,6 +9,7 @@ using Azure.Identity;
 using OpenAI;
 using TaskManager.BLL.Orchestration;
 using TaskManager.BLL.Search;
+using OpenAI.Chat;
 
 namespace TaskManager.BLL;
 
@@ -95,7 +96,7 @@ public class AgentServiceInitializer : IHostedService
 
     private ChatClientAgent CreateGuardianAgent(OpenAI.Chat.ChatClient client)
     {
-        ChatClientAgent guardianAgent = client.CreateAIAgent(
+        ChatClientAgent guardianAgent = client.AsAIAgent(
             instructions: GetGuardianAgentInstructions(),
             name: "GuardianAgent");
 
@@ -117,7 +118,7 @@ public class AgentServiceInitializer : IHostedService
         var taskSearchPlugin = new TaskSearchPlugin(_taskSearchService);
 
 
-        ChatClientAgent workerAgent = client.CreateAIAgent(
+        ChatClientAgent workerAgent = client.AsAIAgent(
             instructions: GetWorkerAgentInstructions(),
             name: "TaskManagerAgent",
             tools: [
