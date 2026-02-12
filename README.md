@@ -1,6 +1,6 @@
 # TaskManager (Layered, One Solution)
 
-A minimal .NET 8 sample with **clear layers** in one solution:
+A minimal **.NET 10** sample with **clear layers** in one solution:
 - `TaskManager.Domain` (Entities/DTOs)
 - `TaskManager.DAL` (EF Core, repository)
 - `TaskManager.BLL` (business logic)

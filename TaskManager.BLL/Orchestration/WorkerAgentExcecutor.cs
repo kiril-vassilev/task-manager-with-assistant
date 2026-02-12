@@ -9,7 +9,7 @@ public class WorkerAgentExecutor : Executor<ChatMessage, AskResponse>
 {
 
     private readonly ChatClientAgent? _agent;
-    private AgentThread? _thread;
+    private AgentSession? _session;
 
     public WorkerAgentExecutor(ChatClientAgent agent): base("WorkerAgentExecutor")
     {
@@ -18,23 +18,18 @@ public class WorkerAgentExecutor : Executor<ChatMessage, AskResponse>
     }
 
     public void CreateClearHistory()
-    {
-        if (_agent == null)
-            throw new InvalidOperationException("Agent not initialized.");
-
-        _thread = _agent.GetNewThread();
+    {   
+        _session = null;
     }
     public override async ValueTask<AskResponse> HandleAsync(ChatMessage message, IWorkflowContext context, CancellationToken cancellationToken = default)
     {
         if (_agent == null)
             throw new InvalidOperationException("WorkerAgentExecutor is not initialized with an ChatClientAgent.");
-
-        if (_thread == null)
-            throw new InvalidOperationException("WorkerAgentExecutor is not initialized with an AgentThread.");
-
+        
+        _session ??= await _agent.CreateSessionAsync(cancellationToken);
 
         var finalAnswer = String.Empty;
-        var response = await _agent.RunAsync<AskResponse>(message.Text, _thread, cancellationToken: cancellationToken);
+        var response = await _agent.RunAsync<AskResponse>(message.Text, _session, cancellationToken: cancellationToken);
 
         if (TaskManagerConfiguration.showAgentThinking)
             foreach (var msg in response.Messages)
