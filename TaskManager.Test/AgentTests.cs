@@ -55,6 +55,34 @@ public class WorkerAgentTests : IClassFixture<AgentFixture>
     }
 #endregion
 
+#region FirstLineAgent tests
+    [Fact]
+    public async Task FirstLineAgent_RedirectsToQnAAgent_WhenAskedForManual()
+    {
+        var agent = await _fixture.GetFirstLineAgentAsync();
+        
+        // Request that should trigger the redirection to QnA agent
+        var response = await agent.RunAsync<FirstLineResponse>("How can I add a task manually?");
+        
+        Assert.NotNull(response);
+        Assert.NotNull(response.Result.Answer);
+        Assert.Equal(RedirectType.QnAAgent, response.Result.Redirect);
+    }
+
+    [Fact]
+    public async Task FirstLineAgent_RedirectsToWorkerAgent_WhenAskedToCompleteTask()
+    {
+        var agent = await _fixture.GetFirstLineAgentAsync();
+        
+        // Request that should trigger the redirection to Worker agent
+        var response = await agent.RunAsync<FirstLineResponse>("Mark 'Sample Task 1' as complete");
+        
+        Assert.NotNull(response);
+        Assert.NotNull(response.Result.Answer);
+        Assert.Equal(RedirectType.WorkerAgent, response.Result.Redirect);
+    }
+#endregion
+
 #region QnAAgent tests
     [Fact]
     public async Task QnAAgent_CheckTheManual_HowToAddTask()

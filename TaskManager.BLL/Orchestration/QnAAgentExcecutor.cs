@@ -21,12 +21,11 @@ public class QnAAgentExecutor : Executor<FirstLineResponse, AskResponse>
         if (this.agent == null)
             throw new InvalidOperationException("QnAAgentExecutor is not initialized with an ChatClientAgent.");
 
-        if( firstLineResponse.Redirect != RedirectType.QnAAgent)
-            throw new InvalidOperationException("QnAAgentExecutor invoked but redirect type is not QnAAgent.");
-        
         if (this.session == null)
             throw new InvalidOperationException("QnAAgentExecutor is not initialized with an AgentSession.");
 
+        if( firstLineResponse.Redirect != RedirectType.QnAAgent)
+            throw new InvalidOperationException("QnAAgentExecutor invoked but redirect type is not QnAAgent.");
 
         var originalQuestion = await context.ReadStateAsync<ChatMessage>("OriginalQuestion", scopeName: TaskManagerConfiguration.defaultWorkflowMessageScope, cancellationToken)
             ?? throw new InvalidOperationException("Original question not found in workflow state.");   

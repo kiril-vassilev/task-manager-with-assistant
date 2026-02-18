@@ -18,6 +18,7 @@ public class AgentFixture : IDisposable
     
     private readonly AgentConfiguration _agentConfiguration;
     private ChatClientAgent? _guardianAgent;
+    private ChatClientAgent? _firstLineAgent;
     private ChatClientAgent? _workerAgent;
     private ChatClientAgent? _qnaAgent;
     private ChatClientAgent? _testingAgent;
@@ -49,6 +50,20 @@ public class AgentFixture : IDisposable
         return _guardianAgent;
     }
 
+    public async Task<ChatClientAgent> GetFirstLineAgentAsync()
+    {
+        if (_firstLineAgent != null)
+            return _firstLineAgent;
+        
+        var client = _agentConfiguration.CreateChatClient();
+
+        _firstLineAgent = client.AsAIAgent(
+            instructions: _agentConfiguration.GetFirstLineAgentInstructions(),
+            name: "TaskManagerFirstLineAgent");
+
+        return _firstLineAgent;
+    }
+
     public async Task<ChatClientAgent> GetWorkerAgentAsync()
     {
         if (_workerAgent != null)
@@ -62,8 +77,8 @@ public class AgentFixture : IDisposable
         // Construct strongly-typed delegates to avoid method-group -> System.Delegate conversion errors
         var tools = new[]
         {
-            AIFunctionFactory.Create(new Func<Task<string>>(toolsPlugin.Today)),
-            AIFunctionFactory.Create(new Func<Task<string>>(toolsPlugin.Clear)),
+            AIFunctionFactory.Create(new Func<Task<string>>(toolsPlugin.Today), name: "Today", description: "It returns today's date."),
+            AIFunctionFactory.Create(new Func<Task<string>>(toolsPlugin.Clear), name: "Clear", description: "It clears the chat history and the context."),
             AIFunctionFactory.Create(new Func<Task<System.Collections.Generic.IEnumerable<TaskItem>>>(_taskServicePlugin.GetTasksAsync), name: "GetAllTasks"),
             AIFunctionFactory.Create(new Func<TaskItem, Task<TaskItem>>(_taskServicePlugin.CreateAsync), name: "Create", description: "Creates a new task. Ask the user for title, description, and due date in the future or today."),
             AIFunctionFactory.Create(new Func<string, Task<TaskItem?>>(_taskServicePlugin.FindByNameAsync), name: "FindByTitle", description: "Finds a task by title. Do not use it for searching by description or other fields."),
@@ -112,7 +127,9 @@ public class AgentFixture : IDisposable
     {
         // Cleanup if needed
         _guardianAgent = null;
+        _firstLineAgent = null;
         _workerAgent = null;
+        _qnaAgent = null;
         _testingAgent = null;
     }
 }

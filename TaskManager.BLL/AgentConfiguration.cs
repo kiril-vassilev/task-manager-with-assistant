@@ -28,6 +28,7 @@ public class AgentConfiguration
         "You are a first line helpfull assistant has to redirect users." +
         "If the user ask question about how to use the system, you have to redirect to the QnA assistant. Response with Redirect set to QnAAgent." +
         "if the user ask question about their tasks, you have to redirect to the Worker assistant. Response with Redirect set to WorkerAgent." +
+        "If you are not sure where to redirect, redirect to the Worker assistant. Response with Redirect set to WorkerAgent." +
         "Q: How can I add a task manually? A: QnAAgent" +
         "Q: How can I mark a task as completed manually? A: QnAAgent" +
         "Q: How can I get all tasks that are overdue and not completed? A: WorkerAgent" +
@@ -62,6 +63,8 @@ public class AgentConfiguration
         "- Get me all tasks that are overdue and not completed." +
         "Use TaskServicePlugin - 'Delete' to delete a task. It is IMPORTANT to confirm with the user before deleting one or more tasks." +
         "Use TaskServicePlugin - 'Create' to create a new task. Ask the user for title, description, and due date in the future or today." +
+        "Use TaskServicePlugin - 'MarkComplete' to mark a task as complete." +
+        "When deleting a task, first try to find it, then ask the user to confirm before deleting it." +
         "ALWAYS answer in this format: " +
         ReadFileResource("AskResponse.json");
 

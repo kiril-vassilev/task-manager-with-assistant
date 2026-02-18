@@ -39,14 +39,16 @@ public class AgentService
             .AddEdge(_guardianExecutor, noThreatDetectedExecutor, condition: static (GuardianResponse? response) => response != null && !response.IsThreatDetected)
             .AddEdge(noThreatDetectedExecutor, _firstLineExecutor)
             .AddEdge(_firstLineExecutor, _qnaExecutor, condition: static (FirstLineResponse? response) => response != null && response.Redirect == RedirectType.QnAAgent)
-            .AddEdge(_firstLineExecutor, _workerExecutor, condition: static (FirstLineResponse? response) => response != null && response.Redirect == RedirectType.WorkerAgent)
+            .AddEdge(_firstLineExecutor, _workerExecutor, condition: static (FirstLineResponse? response) => response != null && (response.Redirect == RedirectType.WorkerAgent || response.Redirect == RedirectType.None))
             .WithOutputFrom(_qnaExecutor, _workerExecutor, threatDetectedExecutor)
             .Build();
 
         // Alternative simpler workflow without threat detection
         //
-        // _workflow = new WorkflowBuilder(_workerExecutor)
-        //     .WithOutputFrom(_workerExecutor)
+        // _workflow = new WorkflowBuilder(_firstLineExecutor)
+        //     .AddEdge(_firstLineExecutor, _qnaExecutor, condition: static (FirstLineResponse? response) => response != null && response.Redirect == RedirectType.QnAAgent)
+        //     .AddEdge(_firstLineExecutor, _workerExecutor, condition: static (FirstLineResponse? response) => response != null && response.Redirect == RedirectType.WorkerAgent)
+        //     .WithOutputFrom(_qnaExecutor, _workerExecutor, threatDetectedExecutor)
         //     .Build();
 
         // Uncomment to visualize the workflow

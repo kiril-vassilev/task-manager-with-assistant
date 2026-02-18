@@ -21,12 +21,11 @@ public class WorkerAgentExecutor : Executor<FirstLineResponse, AskResponse>
         if (this.agent == null)
             throw new InvalidOperationException("WorkerAgentExecutor is not initialized with an ChatClientAgent.");
 
-        if( firstLineResponse.Redirect != RedirectType.WorkerAgent)
-            throw new InvalidOperationException("WorkerAgentExecutor invoked but redirect type is not WorkerAgent.");            
-        
         if (this.session == null)
             throw new InvalidOperationException("WorkerAgentExecutor is not initialized with an AgentSession.");
 
+        if( firstLineResponse.Redirect != RedirectType.WorkerAgent && firstLineResponse.Redirect != RedirectType.None)
+            throw new InvalidOperationException("WorkerAgentExecutor invoked but redirect type is not WorkerAgent or None.");        
 
         var originalQuestion = await context.ReadStateAsync<ChatMessage>("OriginalQuestion", scopeName: TaskManagerConfiguration.defaultWorkflowMessageScope, cancellationToken)
             ?? throw new InvalidOperationException("Original question not found in workflow state.");   
