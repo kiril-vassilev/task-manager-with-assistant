@@ -40,11 +40,11 @@ public class AgentController : ControllerBase
     }
 
     [HttpPost("clear")]
-    public ActionResult ClearHistory()
+    public async Task<ActionResult> ClearHistory()
     {
         try
         {
-            _agentService.CreateClearHistory();
+            await _agentService.CreateClearHistoryAsync();
             return NoContent();
         }
         catch (Exception ex)

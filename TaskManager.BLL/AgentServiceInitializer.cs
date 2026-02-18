@@ -10,6 +10,7 @@ using OpenAI;
 using TaskManager.BLL.Orchestration;
 using TaskManager.BLL.Search;
 using OpenAI.Chat;
+using System.ComponentModel;
 
 namespace TaskManager.BLL;
 
@@ -38,26 +39,33 @@ public class AgentServiceInitializer : IHostedService
         {
             var client = _agentConfiguration.CreateChatClient();
 
-            var guardianAgent = CreateGuardianAgent(client);
+            var guardianAgent = CreateAgent(client, _agentConfiguration.GetGuardianAgentInstructions(), "GuardianAgent");
             var guardianAgentExecutor = new GuardianAgentExecutor(guardianAgent);
 
+            var firstLineAgent = CreateAgent(client, _agentConfiguration.GetFirstLineAgentInstructions(), "FirstLineAgent");
+            var firstLineAgentExecutor = new FirstLineAgentExecutor(firstLineAgent);
+
+            var qnaAgent = CreateAgent(client, _agentConfiguration.GetQnAAgentInstructions(), "QnAAgent" );
+            var qnaAgentExecutor = new QnAAgentExecutor(qnaAgent);
+            
             var workerAgent = await CreateWorkerAgentAsync(client, scope);
             var workerAgentExecutor = new WorkerAgentExecutor(workerAgent);
 
-            _agentService.Initialize(guardianAgentExecutor, workerAgentExecutor);
+            await _agentService.InitializeAsync(guardianAgentExecutor, firstLineAgentExecutor, qnaAgentExecutor, workerAgentExecutor);
 
         }
         await Task.CompletedTask;
     }
 
-    private ChatClientAgent CreateGuardianAgent(OpenAI.Chat.ChatClient client)
+    private ChatClientAgent CreateAgent(OpenAI.Chat.ChatClient client, string instructions, string name)
     {
-        ChatClientAgent guardianAgent = client.AsAIAgent(
-            instructions: _agentConfiguration.GetGuardianAgentInstructions(),
-            name: "GuardianAgent");
+        ChatClientAgent agent = client.AsAIAgent(
+            instructions: instructions,
+            name: name);
 
-        return guardianAgent;
+        return agent;
     }
+
     private async Task<ChatClientAgent> CreateWorkerAgentAsync(OpenAI.Chat.ChatClient client, IServiceScope scope)
     {
         var toolsPlugin = new ToolsPlugin(_agentService);
@@ -78,8 +86,8 @@ public class AgentServiceInitializer : IHostedService
             instructions: _agentConfiguration.GetWorkerAgentInstructions(),
             name: "TaskManagerAgent",
             tools: [
-                    AIFunctionFactory.Create(toolsPlugin.Today),
-                    AIFunctionFactory.Create(toolsPlugin.Clear),
+                    AIFunctionFactory.Create(toolsPlugin.Today, name: "Today", description: "It returns today's date."),
+                    AIFunctionFactory.Create(toolsPlugin.ClearAsync, name: "Clear", description: "It clears the chat history and the context."),
                     AIFunctionFactory.Create(taskServicePlugin.GetTasksAsync, name: "GetAllTasks"),
                     AIFunctionFactory.Create(taskServicePlugin.CreateAsync, name: "Create", description: "Creates a new task. Ask the user for title, description, and due date in the future or today."),
                     AIFunctionFactory.Create(taskServicePlugin.FindByNameAsync, name: "FindByTitle", description: "Finds a task by title. Do not use it for searching by description or other fields."),

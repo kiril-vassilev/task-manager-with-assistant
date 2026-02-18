@@ -5,31 +5,34 @@ using TaskManager.Domain;
 
 namespace TaskManager.BLL.Orchestration;
 
-public class WorkerAgentExecutor : Executor<ChatMessage, AskResponse>
+public class WorkerAgentExecutor : Executor<FirstLineResponse, AskResponse>
 {
 
-    private readonly ChatClientAgent? _agent;
-    private AgentSession? _session;
+    public ChatClientAgent? agent { get; private set; }
+    public AgentSession? session { get; set; }
 
     public WorkerAgentExecutor(ChatClientAgent agent): base("WorkerAgentExecutor")
     {
-        _agent = agent;
-        CreateClearHistory();
+        this.agent = agent;
     }
 
-    public void CreateClearHistory()
-    {   
-        _session = null;
-    }
-    public override async ValueTask<AskResponse> HandleAsync(ChatMessage message, IWorkflowContext context, CancellationToken cancellationToken = default)
+    public override async ValueTask<AskResponse> HandleAsync(FirstLineResponse firstLineResponse, IWorkflowContext context, CancellationToken cancellationToken = default)
     {
-        if (_agent == null)
+        if (this.agent == null)
             throw new InvalidOperationException("WorkerAgentExecutor is not initialized with an ChatClientAgent.");
+
+        if( firstLineResponse.Redirect != RedirectType.WorkerAgent)
+            throw new InvalidOperationException("WorkerAgentExecutor invoked but redirect type is not WorkerAgent.");            
         
-        _session ??= await _agent.CreateSessionAsync(cancellationToken);
+        if (this.session == null)
+            throw new InvalidOperationException("WorkerAgentExecutor is not initialized with an AgentSession.");
+
+
+        var originalQuestion = await context.ReadStateAsync<ChatMessage>("OriginalQuestion", scopeName: TaskManagerConfiguration.defaultWorkflowMessageScope, cancellationToken)
+            ?? throw new InvalidOperationException("Original question not found in workflow state.");   
 
         var finalAnswer = String.Empty;
-        var response = await _agent.RunAsync<AskResponse>(message.Text, _session, cancellationToken: cancellationToken);
+        var response = await this.agent.RunAsync<AskResponse>(originalQuestion.Text, this.session, cancellationToken: cancellationToken);
 
         if (TaskManagerConfiguration.showAgentThinking)
             foreach (var msg in response.Messages)

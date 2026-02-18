@@ -46,6 +46,9 @@
     <EmbeddedResource Include=".././Documents/GuardianResponse.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
+    <EmbeddedResource Include=".././Documents/FirstLineResponse.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>      
   </ItemGroup> 
 
 </Project>

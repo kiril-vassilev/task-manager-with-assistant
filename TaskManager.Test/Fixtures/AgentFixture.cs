@@ -17,10 +17,11 @@ public class AgentFixture : IDisposable
     public readonly InMemoryTaskServicePlugin _taskServicePlugin;  
     
     private readonly AgentConfiguration _agentConfiguration;
-    private ChatClientAgent? _workerAgent;
     private ChatClientAgent? _guardianAgent;
-
-
+    private ChatClientAgent? _workerAgent;
+    private ChatClientAgent? _qnaAgent;
+    private ChatClientAgent? _testingAgent;
+    
     public AgentFixture()
     {
         IConfigurationRoot configRoot = new ConfigurationBuilder()
@@ -79,10 +80,39 @@ public class AgentFixture : IDisposable
         return _workerAgent;
     }
 
+    public async Task<ChatClientAgent> GetQnAAgentAsync()
+    {
+        if (_qnaAgent != null)
+            return _qnaAgent;
+        
+        var client = _agentConfiguration.CreateChatClient();
+
+        _qnaAgent = client.AsAIAgent(
+            instructions: _agentConfiguration.GetQnAAgentInstructions(),
+            name: "TaskManagerQnAAgent");
+
+        return _qnaAgent;
+    }
+
+    public async Task<ChatClientAgent> GetQAAgentAsync()
+    {
+        if (_testingAgent != null)
+            return _testingAgent;
+        
+        var client = _agentConfiguration.CreateChatClient();
+
+        _testingAgent = client.AsAIAgent(
+            instructions: _agentConfiguration.GetTestingAgentInstructions(),
+            name: "TaskManagerTestingAgent");
+
+        return _testingAgent;
+    }
+
     public void Dispose()
     {
         // Cleanup if needed
         _guardianAgent = null;
         _workerAgent = null;
+        _testingAgent = null;
     }
 }

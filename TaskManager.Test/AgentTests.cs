@@ -55,6 +55,60 @@ public class WorkerAgentTests : IClassFixture<AgentFixture>
     }
 #endregion
 
+#region QnAAgent tests
+    [Fact]
+    public async Task QnAAgent_CheckTheManual_HowToAddTask()
+    {
+        var qnaAgent = await _fixture.GetQnAAgentAsync();
+        var testingAgent = await _fixture.GetQAAgentAsync();
+        
+        var responseAgent = await qnaAgent.RunAsync("How can I add a task manually?");
+        
+        Assert.NotNull(responseAgent);
+        Assert.NotNull(responseAgent.Text);
+
+        var responseTestingAgent = await testingAgent.RunAsync("Is this a correct answer to the question 'How can I add a task manually?'. Please, answer 'yes' or 'no'. If the answer is 'no', explain why. " + responseAgent.Text);
+
+        Assert.NotNull(responseTestingAgent);
+        Assert.True(responseTestingAgent.Text.Contains("yes", StringComparison.OrdinalIgnoreCase), $"The answer was expected to be correct, but the agent responded: {responseTestingAgent.Text}");
+    }
+
+    [Fact]
+    public async Task QnAAgent_CheckTheManual_HowToCompleteTask()
+    {
+        var qnaAgent = await _fixture.GetQnAAgentAsync();
+        var testingAgent = await _fixture.GetQAAgentAsync();
+        
+        var responseAgent = await qnaAgent.RunAsync("How can I complete a task manually?");
+        
+        Assert.NotNull(responseAgent);
+        Assert.NotNull(responseAgent.Text);
+
+        var responseTestingAgent = await testingAgent.RunAsync("Is this a correct answer to the question 'How can I complete a task manually?'. Please, answer 'yes' or 'no'. If the answer is 'no', explain why. " + responseAgent.Text);
+
+        Assert.NotNull(responseTestingAgent);
+        Assert.True(responseTestingAgent.Text.Contains("yes", StringComparison.OrdinalIgnoreCase), $"The answer was expected to be correct, but the agent responded: {responseTestingAgent.Text}");
+    }
+
+    [Fact]
+    public async Task QnAAgent_CheckTheManual_HowToDeleteTask_Cannot()
+    {
+        var qnaAgent = await _fixture.GetQnAAgentAsync();
+        var testingAgent = await _fixture.GetQAAgentAsync();
+        
+        // Note: The manual does not include instructions for deleting a task manually, so the expected answer is that it does not know how to do it.
+        var responseAgent = await qnaAgent.RunAsync("How can I delete a task manually?");
+        
+        Assert.NotNull(responseAgent);
+        Assert.NotNull(responseAgent.Text);
+
+        var responseTestingAgent = await testingAgent.RunAsync("Is this a correct answer to the question 'How can I delete a task manually?'. Please, answer 'yes' or 'no'. If the answer is 'no', explain why. " + responseAgent.Text);
+
+        Assert.NotNull(responseTestingAgent);
+        Assert.True(responseTestingAgent.Text.Contains("yes", StringComparison.OrdinalIgnoreCase), $"The answer was expected to be correct, but the agent responded: {responseTestingAgent.Text}");
+    }
+#endregion
+
 #region WorkAgent tests
     [Fact]
     public async Task WorkerAgent_CallsTodayTool_WhenAskedForCurrentDate()

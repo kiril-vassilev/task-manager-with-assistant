@@ -33,7 +33,7 @@ public class GuardianAgentExecutor : Executor<ChatMessage, GuardianResponse>
         // Invoke the agent
         var response = await _agent.RunAsync<GuardianResponse>(message.Text, _session, cancellationToken: cancellationToken);
 
-        // Store the original question in the workflow state for later use by the worker agent (If it is not a threat)
+        // Store the original question in the workflow state for later use by the FirstLine agent (If it is not a threat)
         if (!response.Result.IsThreatDetected)
             await context.QueueStateUpdateAsync("OriginalQuestion", message, scopeName: TaskManagerConfiguration.defaultWorkflowMessageScope, cancellationToken);
             

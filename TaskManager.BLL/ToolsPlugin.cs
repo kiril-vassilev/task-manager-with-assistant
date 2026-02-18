@@ -9,13 +9,11 @@ public sealed class ToolsPlugin
 
     public ToolsPlugin(AgentService agentService) => _agentService = agentService;
 
-    [Description("It returns today's date.")]
     public String Today() => DateTime.UtcNow.Date.ToShortDateString();
 
-    [Description("It clears the chat history and the context.")]
-    public string Clear()
+    public async Task<string> ClearAsync()
     {
-        _agentService.CreateClearHistory();
+        await _agentService.CreateClearHistoryAsync();
         return "The history and context have been cleared.";
     }
 }
