@@ -27,11 +27,9 @@ builder.Services.AddDbContext<TaskDbContext>(opt =>
 
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 builder.Services.AddScoped<ITaskService, TaskService>();
-
-// Register TaskSearchService as singleton
 builder.Services.AddSingleton<TaskSearchService>();
 
-// Register AgentService as singleton
+builder.Services.AddSingleton<AgentConfiguration>();
 builder.Services.AddSingleton<AgentService>();
 
 // Register the hosted service for async initialization

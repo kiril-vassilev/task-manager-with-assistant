@@ -7,6 +7,8 @@ namespace TaskManager.BLL.Orchestration;
 public class AgentService
 {
     private GuardianAgentExecutor? _guardianExecutor;
+    private FirstLineAgentExecutor? _firstLineExecutor;
+    private QnAAgentExecutor? _qnaExecutor;
     private WorkerAgentExecutor? _workerExecutor;
     private Workflow? _workflow;
 
@@ -15,25 +17,38 @@ public class AgentService
         // Empty constructor for DI
     }
 
-    public void Initialize(GuardianAgentExecutor guardianExecutor, WorkerAgentExecutor workerExecutor)
+    public async Task InitializeAsync(
+        GuardianAgentExecutor guardianExecutor, 
+        FirstLineAgentExecutor firstLineExecutor,
+        QnAAgentExecutor qnaExecutor,
+        WorkerAgentExecutor workerExecutor)
     {
         _guardianExecutor = guardianExecutor;
+        _firstLineExecutor = firstLineExecutor;
+        _qnaExecutor = qnaExecutor;
         _workerExecutor = workerExecutor;
+
+        // Create a new session for the agents 
+        await CreateClearHistoryAsync();
 
         var threatDetectedExecutor = new ThreatDetectedExecutor();
         var noThreatDetectedExecutor = new NoThreatDetectedExecutor();
 
         _workflow = new WorkflowBuilder(_guardianExecutor)
-            .AddEdge(_guardianExecutor, noThreatDetectedExecutor, condition: static (GuardianResponse? response) => response != null && !response.IsThreatDetected)
             .AddEdge(_guardianExecutor, threatDetectedExecutor, condition: static (GuardianResponse? response) => response != null && response.IsThreatDetected)
-            .AddEdge(noThreatDetectedExecutor, _workerExecutor)
-            .WithOutputFrom(_workerExecutor, threatDetectedExecutor)
+            .AddEdge(_guardianExecutor, noThreatDetectedExecutor, condition: static (GuardianResponse? response) => response != null && !response.IsThreatDetected)
+            .AddEdge(noThreatDetectedExecutor, _firstLineExecutor)
+            .AddEdge(_firstLineExecutor, _qnaExecutor, condition: static (FirstLineResponse? response) => response != null && response.Redirect == RedirectType.QnAAgent)
+            .AddEdge(_firstLineExecutor, _workerExecutor, condition: static (FirstLineResponse? response) => response != null && (response.Redirect == RedirectType.WorkerAgent || response.Redirect == RedirectType.None))
+            .WithOutputFrom(_qnaExecutor, _workerExecutor, threatDetectedExecutor)
             .Build();
 
         // Alternative simpler workflow without threat detection
         //
-        // _workflow = new WorkflowBuilder(_workerExecutor)
-        //     .WithOutputFrom(_workerExecutor)
+        // _workflow = new WorkflowBuilder(_firstLineExecutor)
+        //     .AddEdge(_firstLineExecutor, _qnaExecutor, condition: static (FirstLineResponse? response) => response != null && response.Redirect == RedirectType.QnAAgent)
+        //     .AddEdge(_firstLineExecutor, _workerExecutor, condition: static (FirstLineResponse? response) => response != null && response.Redirect == RedirectType.WorkerAgent)
+        //     .WithOutputFrom(_qnaExecutor, _workerExecutor, threatDetectedExecutor)
         //     .Build();
 
         // Uncomment to visualize the workflow
@@ -64,6 +79,8 @@ public class AgentService
                         Console.WriteLine($"Executor Completed: {guardianResponse.Answer}");
                     if (executorCompletedEvent.Data is AskResponse askResponse)
                         Console.WriteLine($"Executor Completed: {askResponse.Answer}");
+                    if (executorCompletedEvent.Data is FirstLineResponse firstLineResponse)
+                        Console.WriteLine($"Executor Completed: {firstLineResponse.Answer}");
                     break;
 
                 case WorkflowErrorEvent errorEvent:
@@ -82,16 +99,29 @@ public class AgentService
         throw new InvalidOperationException("The workflow did not produce a valid output.");
     }
 
-    public void CreateClearHistory()
+    public async Task CreateClearHistoryAsync(CancellationToken cancellationToken = default)
     {
+        if (_firstLineExecutor == null)
+            throw new InvalidOperationException("WorkflowTaskService is not initialized with a FirstLineAgentExecutor.");
+
+        if (_qnaExecutor == null)
+            throw new InvalidOperationException("WorkflowTaskService is not initialized with a QnAAgentExecutor.");
+
         if (_workerExecutor == null)
             throw new InvalidOperationException("WorkflowTaskService is not initialized with a WorkerAgentExecutor.");
 
-        _workerExecutor.CreateClearHistory();
+        var firstLineAgent = _firstLineExecutor.agent ?? throw new InvalidOperationException("WorkflowTaskService is not initialized with a FirstLineAgentExecutor or its agent is null.");
+        
+        var firstLineAgentSession = await firstLineAgent.CreateSessionAsync(cancellationToken);
 
+        _firstLineExecutor.session = firstLineAgentSession;
+        _qnaExecutor.session = firstLineAgentSession;
+        _workerExecutor.session = firstLineAgentSession;    
+        
         if (_guardianExecutor == null)
             throw new InvalidOperationException("WorkflowTaskService is not initialized with a GuardianAgentExecutor.");
 
         _guardianExecutor.CreateClearHistory();
+        
     }
 }

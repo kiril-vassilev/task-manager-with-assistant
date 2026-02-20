@@ -1,5 +1,6 @@
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
+using TaskManager.Domain;
 
 namespace TaskManager.BLL.Orchestration;
 
@@ -16,7 +17,7 @@ public class NoThreatDetectedExecutor() : Executor<GuardianResponse>("NoThreatDe
 
         await context.SendMessageAsync(originalQuestion, cancellationToken: cancellationToken);
 
-        // Send a turn token to trigger the worker's processing
+        // Send a turn token to trigger the First Line's processing
         await context.SendMessageAsync(new TurnToken(emitEvents: true), cancellationToken: cancellationToken);            
 
     }

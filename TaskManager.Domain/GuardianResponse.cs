@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace TaskManager.BLL.Orchestration;
+namespace TaskManager.Domain;
 
 public class GuardianResponse
 {

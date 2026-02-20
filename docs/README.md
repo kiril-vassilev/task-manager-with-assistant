@@ -3,6 +3,7 @@
 
 - [Migrating to Agent Framework]({{ '/AGENT_FRAMEWORK_MIGRATION' | relative_url }})
 - [Implementing a Safeguard with an Agent]({{ '/SAFEGUARD_AGENT' | relative_url }})
+- [Testing with an Agent]({{ '/TESTING_AGENT' | relative_url }})
 
 # Introduction
 
