@@ -1,4 +1,8 @@
-
+---
+layout: default
+title: Task Manager with an Assistant
+permalink: /.
+---
 ![Task Manager pciture](./task-manager.jpg)
 
 - [Migrating to Agent Framework]({{ '/AGENT_FRAMEWORK_MIGRATION' | relative_url }})
