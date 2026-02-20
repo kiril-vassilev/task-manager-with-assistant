@@ -1,6 +1,6 @@
 ---
 layout: default
-title: "Testing with an Agent"
+title: Testing with an Agent
 ---
 ![task-manager-testing](task-manager-testing3.png)
 

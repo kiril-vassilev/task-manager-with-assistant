@@ -1,7 +1,6 @@
 ---
 layout: default
 title: Migrating from Semantic Kernel to Agent Framework
-permalink: /AGENT_FRAMEWORK_MIGRATION
 ---
 ![agent-framework](agent-framework.png)
 

@@ -1,6 +1,6 @@
 ---
 layout: default
-title: "Implementing a Safeguard with an Agent"
+title: Implementing a Safeguard with an Agent
 ---
 ![task-manager-with-gardian](task-manager-with-gardian.jpg)
 
