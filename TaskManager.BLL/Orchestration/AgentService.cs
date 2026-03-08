@@ -68,7 +68,7 @@ public class AgentService
         if (_workflow == null)
             throw new InvalidOperationException("WorkflowTaskService is not initialized with a Workflow.");
 
-        await using StreamingRun run = await InProcessExecution.StreamAsync(_workflow, new ChatMessage(ChatRole.User, question));
+        await using StreamingRun run = await InProcessExecution.RunStreamingAsync(_workflow, new ChatMessage(ChatRole.User, question));
         await run.TrySendMessageAsync(new TurnToken(emitEvents: true));
 
         await foreach (WorkflowEvent evt in run.WatchStreamAsync())
