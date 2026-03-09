@@ -273,4 +273,20 @@ public class WorkerAgentTests : IClassFixture<AgentFixture>
     }
 #endregion
 
+#region AgetnService tests
+    [Fact]
+    public async Task AgentService_Workflow_NoThreatDetected()
+    {
+        var agentService = await _fixture.GetAgentServiceAsync();
+
+        toolsPlugin.ResetIsTodayCalled();    
+
+        // This is a high-level test that checks the entire workflow from Guardian to First Line to QnA/Worker.
+        var response = await agentService.AskQuestionAsync("What is today's date?");
+
+        Assert.NotNull(response);
+        Assert.NotNull(response.Answer);    
+        Assert.True(toolsPlugin.IsTodayCalled); 
+    }
+#endregion
 }
