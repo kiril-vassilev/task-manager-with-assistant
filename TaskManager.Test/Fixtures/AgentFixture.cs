@@ -7,6 +7,8 @@ using OpenAI.Chat;
 using Azure.AI.OpenAI;
 using TaskManager.BLL;
 using TaskManager.Domain;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using TaskManager.BLL.Orchestration;
 
 #nullable enable
 
@@ -22,6 +24,8 @@ public class AgentFixture : IDisposable
     private ChatClientAgent? _workerAgent;
     private ChatClientAgent? _qnaAgent;
     private ChatClientAgent? _testingAgent;
+
+    private AgentService? _agentService;
     
     public AgentFixture()
     {
@@ -123,6 +127,32 @@ public class AgentFixture : IDisposable
         return _testingAgent;
     }
 
+    public async Task<AgentService> GetAgentServiceAsync()
+    {
+        if (_agentService != null)
+            return _agentService;
+
+        var guardian = await GetGuardianAgentAsync();
+        var firstLine = await GetFirstLineAgentAsync();
+        var worker = await GetWorkerAgentAsync();
+        var qna = await GetQnAAgentAsync();
+    
+        var guardianAgentExecutor = new GuardianAgentExecutor(guardian);
+        var firstLineAgentExecutor = new FirstLineAgentExecutor(firstLine);
+        var qnaAgentExecutor = new QnAAgentExecutor(qna);
+        var workerAgentExecutor = new WorkerAgentExecutor(worker);
+
+        _agentService = new AgentService();
+        await _agentService.InitializeAsync(
+            guardianAgentExecutor,
+            firstLineAgentExecutor,
+            qnaAgentExecutor,
+            workerAgentExecutor
+        );
+
+        return _agentService;
+    }
+
     public void Dispose()
     {
         // Cleanup if needed
@@ -131,5 +161,6 @@ public class AgentFixture : IDisposable
         _workerAgent = null;
         _qnaAgent = null;
         _testingAgent = null;
+        _agentService = null;
     }
 }
