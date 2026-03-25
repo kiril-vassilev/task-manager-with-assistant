@@ -87,7 +87,7 @@ public class AgentFixture : IDisposable
             AIFunctionFactory.Create(new Func<TaskItem, Task<TaskItem>>(_taskServicePlugin.CreateAsync), name: "Create", description: "Creates a new task. Ask the user for title, description, and due date in the future or today."),
             AIFunctionFactory.Create(new Func<string, Task<TaskItem?>>(_taskServicePlugin.FindByNameAsync), name: "FindByTitle", description: "Finds a task by title. Do not use it for searching by description or other fields."),
             AIFunctionFactory.Create(new Func<string, Task<TaskItem?>>(_taskServicePlugin.MarkCompleteAsync), name: "MarkComplete", description: "Marks a task as complete."),
-            AIFunctionFactory.Create(new Func<string, Task<bool>>(_taskServicePlugin.DeleteAsync), name: "Delete", description: "Deletes a task. It is IMPORTANT to confirm with the user before deleting one or more tasks."),
+            AIFunctionFactory.Create(new Func<string, Task<string>>(_taskServicePlugin.DeleteAsync), name: "Delete", description: "Deletes a task. It is IMPORTANT to confirm with the user before deleting one or more tasks."),
             AIFunctionFactory.Create(new Func<string, Task<System.Collections.Generic.IEnumerable<TaskItem>>>(taskSearchPlugin.SearchAsync), name: "Search")
         };
 

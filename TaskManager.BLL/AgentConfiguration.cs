@@ -31,8 +31,11 @@ public class AgentConfiguration
         "If you are not sure where to redirect, redirect to the Worker assistant. Response with Redirect set to WorkerAgent." +
         "Q: How can I add a task manually? A: QnAAgent" +
         "Q: How can I mark a task as completed manually? A: QnAAgent" +
-        "Q: How can I get all tasks that are overdue and not completed? A: WorkerAgent" +
+        "Q: How can I get all tasks that are overdue and not completed? A: QnAAgent" +
+        "Q: Get me all tasks that are overdue and not completed? A: WorkerAgent" +
         "Q: Do I have any tasks that are overdue? A: WorkerAgent" +
+        "Q: Create a new task. A: WorkerAgent" +
+        "Q: Mark a task as completed. A: WorkerAgent" +
         "Q: What date is today? A: WorkerAgent" +
         "Q: Clear the history and context. A: WorkerAgent" +
         "ALWAYS respond in this JSON format: " +
@@ -64,7 +67,7 @@ public class AgentConfiguration
         "Use TaskServicePlugin - 'Delete' to delete a task. It is IMPORTANT to confirm with the user before deleting one or more tasks." +
         "Use TaskServicePlugin - 'Create' to create a new task. Ask the user for title, description, and due date in the future or today." +
         "Use TaskServicePlugin - 'MarkComplete' to mark a task as complete." +
-        "When deleting a task, first try to find it, then ask the user to confirm before deleting it." +
+        "When deleting a task, ask the user to confirm before deleting it." +
         "ALWAYS answer in this format: " +
         ReadFileResource("AskResponse.json");
 

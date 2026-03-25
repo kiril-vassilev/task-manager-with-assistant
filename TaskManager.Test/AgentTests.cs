@@ -236,12 +236,13 @@ public class WorkerAgentTests : IClassFixture<AgentFixture>
     public async Task WorkerAgent_CallsDeleteTool_WhenAskedToDeleteTask()
     {
         var agent = await _fixture.GetWorkerAgentAsync();
+        var session = await agent.CreateSessionAsync();
         
         var item = (await _fixture._taskServicePlugin.GetTasksAsync()).FirstOrDefault(t => t.Title == "Sample Task 2");
         Assert.NotNull(item);
 
         // Request that should trigger the Delete tool
-        var response1 = await agent.RunAsync<AskResponse>("Delete the task 'Sample Task 2'");
+        var response1 = await agent.RunAsync<AskResponse>("Delete the task 'Sample Task 2'", session);
         
         Assert.NotNull(response1);
         Assert.NotNull(response1.Result.Answer);
@@ -251,7 +252,7 @@ public class WorkerAgentTests : IClassFixture<AgentFixture>
 
         // It should ask for confirmation before deleting, so we simulate the user confirming the deletion.
         // Note: Since it has no memory, we have to ask it again with the confirmation in the prompt.
-        var response2 = await agent.RunAsync<AskResponse>("Delete the task 'Sample Task 2' and yes, I am sure. Please delete it.");
+        var response2 = await agent.RunAsync<AskResponse>("Delete the task 'Sample Task 2' and yes, I am sure. Please delete it.", session);
 
         var deletedItem = (await _fixture._taskServicePlugin.GetTasksAsync()).FirstOrDefault(t => t.Title == "Sample Task 2");
         Assert.Null(deletedItem);

@@ -67,12 +67,12 @@ namespace TaskManager.Test.Fixtures
             return Task.FromResult<TaskItem?>(item);
         }
 
-        public Task<bool> DeleteAsync(string title)
+        public Task<string> DeleteAsync(string title)
         {
             var item = _store.FirstOrDefault(t => string.Equals(t.Title, title, StringComparison.OrdinalIgnoreCase));
-            if (item == null) return Task.FromResult(false);
+            if (item == null) return Task.FromResult("Task not found.");
             _store.Remove(item);
-            return Task.FromResult(true);
+            return Task.FromResult("Task deleted successfully.");
         }
     }
 
