@@ -202,6 +202,20 @@ public class WorkerAgentTests : IClassFixture<AgentFixture>
     }
 
     [Fact]
+    public async Task WorkerAgent_CallsCreateTool_WhenAskedToCreateTask_AskForDetails()
+    {
+        var agent = await _fixture.GetWorkerAgentAsync();
+        
+        // Request that should trigger the Create tool
+        var response = await agent.RunAsync<AskResponse>(
+            "Create TASKZ");
+        
+        Assert.NotNull(response);
+        Assert.NotNull(response.Result.Answer);
+        Assert.DoesNotContain("TASKZ", response.Result.Tasks.Select(t => t.Title));
+    }    
+
+    [Fact]
     public async Task WorkerAgent_CallsFindByTitleTool_WhenSearchingForTaskByTitle()
     {
         var agent = await _fixture.GetWorkerAgentAsync();
@@ -233,15 +247,16 @@ public class WorkerAgentTests : IClassFixture<AgentFixture>
     }
 
     [Fact]
-    public async Task WorkerAgent_CallsDeleteTool_WhenAskedToDeleteTask()
+    public async Task WorkerAgent_CallsDeleteTool_WhenAskedToDeleteTask_ConfirmationRequired()
     {
         var agent = await _fixture.GetWorkerAgentAsync();
         
         var item = (await _fixture._taskServicePlugin.GetTasksAsync()).FirstOrDefault(t => t.Title == "Sample Task 2");
         Assert.NotNull(item);
 
-        // Request that should trigger the Delete tool
+        // Request that should NOT trigger the Delete tool - it should ask for confirmation first
         var response1 = await agent.RunAsync<AskResponse>("Delete the task 'Sample Task 2'");
+        
         
         Assert.NotNull(response1);
         Assert.NotNull(response1.Result.Answer);

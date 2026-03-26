@@ -35,7 +35,7 @@ namespace TaskManager.Test
             Assert.True(marked.IsCompleted);
 
             var deleted = await svc.DeleteAsync("New Task");
-            Assert.True(deleted);
+            Assert.NotNull(deleted);
         }
 
         [Fact]
