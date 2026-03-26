@@ -89,10 +89,10 @@ public class AgentServiceInitializer : IHostedService
                     AIFunctionFactory.Create(toolsPlugin.Today, name: "Today", description: "It returns today's date."),
                     AIFunctionFactory.Create(toolsPlugin.ClearAsync, name: "Clear", description: "It clears the chat history and the context."),
                     AIFunctionFactory.Create(taskServicePlugin.GetTasksAsync, name: "GetAllTasks"),
-                    AIFunctionFactory.Create(taskServicePlugin.CreateAsync, name: "Create", description: "Creates a new task. Ask the user for title, description, and due date in the future or today."),
+                    AIFunctionFactory.Create(taskServicePlugin.CreateAsync, name: "Create", description: "Creates a new task. " + _agentConfiguration.GetCreateTaskToolRules()),
                     AIFunctionFactory.Create(taskServicePlugin.FindByNameAsync, name: "FindByTitle", description: "Finds a task by title. Do not use it for searching by description or other fields."),
                     AIFunctionFactory.Create(taskServicePlugin.MarkCompleteAsync, name: "MarkComplete", description: "Marks a task as complete."),
-                    AIFunctionFactory.Create(taskServicePlugin.DeleteAsync, name: "Delete", description: "Deletes a task. It is IMPORTANT to confirm with the user before deleting one or more tasks."),
+                    AIFunctionFactory.Create(taskServicePlugin.DeleteAsync, name: "Delete", description: "Deletes a task. " + _agentConfiguration.GetDeleteTaskToolRules()),
                     AIFunctionFactory.Create(taskSearchPlugin.SearchAsync, name: "Search")
             ]);
 

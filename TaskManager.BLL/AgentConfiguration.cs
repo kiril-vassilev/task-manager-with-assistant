@@ -41,6 +41,13 @@ public class AgentConfiguration
         "ALWAYS respond in this JSON format: " +
         ReadFileResource("FirstLineResponse.json");        
 
+    public string GetDeleteTaskToolRules() =>
+        "IMPORTANT: Find the task or tasks. It is common the user NOT to want to delete so CONFIRM before deleting one or more tasks. Do NOT make up the answer, yourself.";
+
+    public string GetCreateTaskToolRules() =>
+        "IMPORTANT: It is common the user NOT to provide all details when creating a task so ASK for title, description, and due date." +
+        "The due date should be in the future or today. If any of them are NOT provided, do NOT make up the answer, yourself, unless the user explicitly ask you to do so. Instead, ask the user to provide the missing details."; 
+
     public string GetWorkerAgentInstructions() =>
         "You are a helpful assistant that manages tasks. " +
         "Each task has a title, description, due date, and iscompleted status." +
@@ -64,10 +71,9 @@ public class AgentConfiguration
         "- Do I have any tasks that are overdue and not completed?" +
         "- Get me all overdue tasks." +
         "- Get me all tasks that are overdue and not completed." +
-        "Use TaskServicePlugin - 'Delete' to delete a task. It is IMPORTANT to confirm with the user before deleting one or more tasks." +
-        "Use TaskServicePlugin - 'Create' to create a new task. Ask the user for title, description, and due date in the future or today." +
+        "Use TaskServicePlugin - 'Delete' to delete a task. " + GetDeleteTaskToolRules() +
+        "Use TaskServicePlugin - 'Create' to create a new task. " + GetCreateTaskToolRules() +
         "Use TaskServicePlugin - 'MarkComplete' to mark a task as complete." +
-        "When deleting a task, ask the user to confirm before deleting it." +
         "ALWAYS answer in this format: " +
         ReadFileResource("AskResponse.json");
 
